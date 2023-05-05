@@ -22,7 +22,7 @@ struct Architecture {
   std::size_t output_layer = 26u;
 };
 
-class Configuration {
+class Config {
  public:
   enum class TrainType { kTrain, kCrossValidation };
 
