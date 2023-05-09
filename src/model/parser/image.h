@@ -1,5 +1,5 @@
-#ifndef SRC_MODEL_PARSER_LETTER_H_
-#define SRC_MODEL_PARSER_LETTER_H_
+#ifndef SRC_MODEL_PARSER_IMAGE_H_
+#define SRC_MODEL_PARSER_IMAGE_H_
 
 #include <algorithm>
 #include <vector>
@@ -33,4 +33,4 @@ class Image {
 
 }  // namespace s21
 
-#endif  // SRC_MODEL_PARSER_LETTER_H_
+#endif  // SRC_MODEL_PARSER_IMAGE_H_
