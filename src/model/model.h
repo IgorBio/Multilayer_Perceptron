@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <thread>
 
-#include "config.h"
 // #include "neural_network/io/weight_reader.h"
 #include "mlp.h"
 // #include "reader/csv_reader.h"

@@ -1,4 +1,4 @@
-#include "matrix.h"
+#include "matrix_mlp.h"
 
 namespace s21 {
 
@@ -26,7 +26,7 @@ void MatrixMlp::SetInput(const Vector &outputs) {
   for (std::size_t i = 0u; i < outputs.size(); ++i) {
     input[i][0] = outputs[i];
   }
-  values_.front() = input;
+  values_.front() = std::move(input);
 }
 
 void MatrixMlp::ForwardPropagation() {

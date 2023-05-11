@@ -18,7 +18,7 @@ struct Metrics {
 struct Architecture {
   std::size_t hidden_layers = 2u;
   std::size_t input_layer = 784u;
-  std::size_t hidden_layer = 140u;
+  std::size_t hidden_layer = 1000u;
   std::size_t output_layer = 26u;
 };
 
@@ -54,7 +54,7 @@ class Config {
   double test_sample_ = 1.0;
   std::size_t k_folds_ = 1u;
   std::size_t epochs_ = 20u;
-  double learning_rate_ = 0.01;
+  double learning_rate_ = 0.1;
 };
 
 }  // namespace s21
