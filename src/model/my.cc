@@ -4,7 +4,7 @@
 #include <vector>
 
 // #include "io/emnist_parser.h"
-#include "utility/winograd.h"
+#include "utility/matrix_operations.h"
 
 s21::Matrix RandomMatrix(int rows, int cols);
 void PrintMatrix(s21::Matrix m);
@@ -42,19 +42,26 @@ int main() {
   //   }
   // std::cout << dataset[0].GetPixels().size() << std::endl;
 
-  // s21::Matrix m1 = {{2, 3, 3, 10}, {2, 3, 4, 20}};
-  // s21::Matrix m2 = {{1, 2, 3, 4}, {2, 3, 4, 5}, {3, 4, 5, 6}, {10, 20, 30,
-  // 40}};
-  s21::Matrix m1 = RandomMatrix(784, 784);
-  s21::Matrix m2 = RandomMatrix(784, 784);
+  s21::Matrix m1 = {{2, 3, 3, 10}, {2, 3, 4, 20}};
+  s21::Matrix m2 = {{1, 2, 3, 4}, {2, 3, 4, 5}};
+  // s21::Matrix m1 = RandomMatrix(784, 784);
+  // s21::Matrix m2 = RandomMatrix(784, 784);
+  // s21::Matrix res = s21::Matrix(784, s21::Vector(784));
   auto start = std::chrono::high_resolution_clock::now();
-  s21::Matrix res = s21::MultiplyMaxThreads(m1, m2);
+  s21::Matrix res = s21::MultiplyNumberParallel(m1, 3);
+  // for (size_t i = 0; i < res.size(); ++i) {
+  //   for (size_t j = 0; j < res[0].size(); ++j) {
+  //     for (size_t k = 0; k < m2.size(); k++) {
+  //       res[i][j] += m1[i][k] * m2[k][j];
+  //     }
+  //   }
+  // }
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double, std::milli> elapsed = end - start;
   std::cout << "Elapsed Time : " << elapsed.count() << " ms" << std::endl;
 
-  // PrintMatrix(m1);
-  // PrintMatrix(m2);
-  // PrintMatrix(res);
+  PrintMatrix(m1);
+  PrintMatrix(m2);
+  PrintMatrix(res);
   return 0;
 }

@@ -2,6 +2,7 @@
 #define SRC_MODEL_MATRIX_MATRIX_H_
 
 #include "../config.h"
+#include "../utility/matrix_operations.h"
 
 namespace s21 {
 
