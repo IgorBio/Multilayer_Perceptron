@@ -2,6 +2,23 @@
 
 namespace s21 {
 
+void RandomMatrixParallel(Matrix& m) {
+  std::size_t rows = m.size(), cols = m[0].size();
+  Threads threads = Threads(std::thread::hardware_concurrency());
+
+  auto job = [&](std::size_t idx) { RandomElement(m, idx); };
+
+  for (std::size_t idx{0u}; idx < rows; ++idx) {
+    if (threads[idx % threads.size()].joinable()) {
+      threads[idx % threads.size()].join();
+    }
+    threads[idx % threads.size()] = std::move(std::thread{job, idx});
+  }
+  for (auto& thread : threads) {
+    if (thread.joinable()) thread.join();
+  }
+}
+
 Matrix SubtractionParallel(const Matrix& m1, const Matrix& m2) {
   if (m1.size() != m2.size() or m1[0].size() != m2[0].size()) {
     throw std::logic_error("Matrices have inconsistent dimensions");
@@ -127,6 +144,58 @@ Matrix MultiplyWinogradParallel(const Matrix& m1, const Matrix& m2) {
   return matrix;
 }
 
+Matrix ApplyActivationParallel(const Matrix& m) {
+  std::size_t rows = m.size(), cols = m[0].size();
+  Matrix matrix = Matrix(rows, Vector(cols));
+  Threads threads = Threads(std::thread::hardware_concurrency());
+
+  auto job = [&](std::size_t idx) { ApplyActivationElement(matrix, m, idx); };
+
+  for (std::size_t idx{0u}; idx < rows; ++idx) {
+    if (threads[idx % threads.size()].joinable()) {
+      threads[idx % threads.size()].join();
+    }
+    threads[idx % threads.size()] = std::move(std::thread{job, idx});
+  }
+  for (auto& thread : threads) {
+    if (thread.joinable()) thread.join();
+  }
+  return matrix;
+}
+
+Matrix ApplyDerivativeActivationParallel(const Matrix& m) {
+  std::size_t rows = m.size(), cols = m[0].size();
+  Matrix matrix = Matrix(rows, Vector(cols));
+  Threads threads = Threads(std::thread::hardware_concurrency());
+
+  auto job = [&](std::size_t idx) {
+    ApplyDerivativeActivationElement(matrix, m, idx);
+  };
+
+  for (std::size_t idx{0u}; idx < rows; ++idx) {
+    if (threads[idx % threads.size()].joinable()) {
+      threads[idx % threads.size()].join();
+    }
+    threads[idx % threads.size()] = std::move(std::thread{job, idx});
+  }
+  for (auto& thread : threads) {
+    if (thread.joinable()) thread.join();
+  }
+  return matrix;
+}
+
+void RandomElement(Matrix& m, const std::size_t i) {
+  for (std::size_t j{0}; j < m[0].size(); ++j) {
+    m[i][j] = RandomWeight();
+  }
+}
+
+double RandomWeight() {
+  std::uniform_real_distribution<double> dist(-1.0, 1.0);
+  std::random_device rd;
+  return dist(rd);
+}
+
 void SubtractElement(Matrix& res, const Matrix& m1, const Matrix& m2,
                      const std::size_t i) {
   for (std::size_t j{0}; j < res[0].size(); ++j) {
@@ -188,4 +257,18 @@ void OddMatrixProcessing(Matrix& res, const Matrix& m1, const Matrix& m2) {
     }
   }
 }
+
+void ApplyActivationElement(Matrix& res, const Matrix& m, const std::size_t i) {
+  for (std::size_t j{0}; j < res[0].size(); ++j) {
+    res[i][j] = Sigmoid(m[i][j]);
+  }
+}
+
+void ApplyDerivativeActivationElement(Matrix& res, const Matrix& m,
+                                      const std::size_t i) {
+  for (std::size_t j{0}; j < res[0].size(); ++j) {
+    res[i][j] = DerivativeSigmoid(m[i][j]);
+  }
+}
+
 }  // namespace s21

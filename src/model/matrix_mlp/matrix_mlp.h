@@ -8,27 +8,21 @@ namespace s21 {
 
 class MatrixMlp {
  public:
-  using Matrix = std::vector<std::vector<double>>;
-  using Vector = std::vector<double>;
+  explicit MatrixMlp(Architecture);
 
-  explicit MatrixMlp(Architecture architecture);
-
-  void SetInput(const Vector& outputs);
+  void SetInputLayer(const Vector &);
   void ForwardPropagation();
-  void BackPropagation(const Vector& expected_output, double learning_rate_);
+  void BackPropagation(const Vector &, double);
   Vector GetOutput();
-
   Vector GetWeights();
-  void LoadWeights(const Vector& weights);
+  void SetWeights(const Vector &);
 
  private:
-  void FillMatrixRandom(Matrix& m);
-  Matrix ActivationFuncMatrix(const Matrix& m);
-  Matrix DerivativeActivationFuncMatrix(const Matrix& m);
-  void AdjustWeights(std::size_t i, double learning_rate, const Matrix& error);
+  void AddWheights(std::size_t, std::size_t);
+  void AdjustWeights(const Matrix &, double, size_t);
 
-  std::vector<Matrix> values_;
   std::vector<Matrix> weights_;
+  std::vector<Matrix> layers_;
 };
 
 }  // namespace s21
