@@ -1,7 +1,5 @@
 #include "matrix_operations.h"
 
-#include "activation_functions.h"
-
 namespace s21 {
 
 void RandomMatrix(Matrix& m, Parallel parallel) {
@@ -34,15 +32,15 @@ Matrix MultiplyWinograd(const Matrix& m1, const Matrix& m2, Parallel parallel) {
   if (parallel == Parallel::kOpenMP) return MultiplyWinogradOmp(m1, m2);
 }
 
-Matrix Activate(const Matrix& m, Parallel parallel) {
-  if (parallel == Parallel::kMaxThreads) return ApplyActivationThreads(m);
-  if (parallel == Parallel::kOpenMP) return ApplyActivationOmp(m);
+Matrix Activate(const Matrix& m, Parallel parallel, ActivationFunction func) {
+  if (parallel == Parallel::kMaxThreads) return ActivateThreads(m, func);
+  if (parallel == Parallel::kOpenMP) return ActivateOmp(m, func);
 }
 
-Matrix DeriveActivate(const Matrix& m, Parallel parallel) {
-  if (parallel == Parallel::kMaxThreads)
-    return ApplyDerivativeActivationThreads(m);
-  if (parallel == Parallel::kOpenMP) return ApplyDerivativeActivationOmp(m);
+Matrix DeriveActivate(const Matrix& m, Parallel parallel,
+                      ActivationFunction func) {
+  if (parallel == Parallel::kMaxThreads) return DeriveActivateThreads(m, func);
+  if (parallel == Parallel::kOpenMP) return DeriveActivateOmp(m, func);
 }
 
 void RandomMatrixThreads(Matrix& m) {
@@ -271,12 +269,12 @@ Matrix MultiplyWinogradOmp(const Matrix& m1, const Matrix& m2) {
   return matrix;
 }
 
-Matrix ApplyActivationThreads(const Matrix& m) {
+Matrix ActivateThreads(const Matrix& m, ActivationFunction func) {
   std::size_t rows = m.size(), cols = m[0].size();
   Matrix matrix = Matrix(rows, Vector(cols));
   Threads threads = Threads(std::thread::hardware_concurrency());
 
-  auto job = [&](std::size_t idx) { ApplyActivationElement(matrix, m, idx); };
+  auto job = [&](std::size_t idx) { ActivateElement(matrix, m, idx, func); };
 
   for (std::size_t idx{0u}; idx < rows; ++idx) {
     if (threads[idx % threads.size()].joinable()) {
@@ -290,24 +288,24 @@ Matrix ApplyActivationThreads(const Matrix& m) {
   return matrix;
 }
 
-Matrix ApplyActivationOmp(const Matrix& m) {
+Matrix ActivateOmp(const Matrix& m, ActivationFunction func) {
   Matrix matrix(m.size(), Vector(m[0].size()));
 #pragma omp parallel for
   for (std::size_t i{0u}; i < m.size(); ++i) {
     for (std::size_t j{0u}; j < m[0].size(); ++j) {
-      matrix[i][j] = Sigmoid(m[i][j]);
+      matrix[i][j] = ApplyActivate(m[i][j], func);
     }
   }
   return matrix;
 }
 
-Matrix ApplyDerivativeActivationThreads(const Matrix& m) {
+Matrix DeriveActivateThreads(const Matrix& m, ActivationFunction func) {
   std::size_t rows = m.size(), cols = m[0].size();
   Matrix matrix = Matrix(rows, Vector(cols));
   Threads threads = Threads(std::thread::hardware_concurrency());
 
   auto job = [&](std::size_t idx) {
-    ApplyDerivativeActivationElement(matrix, m, idx);
+    DeriveActivateElement(matrix, m, idx, func);
   };
 
   for (std::size_t idx{0u}; idx < rows; ++idx) {
@@ -322,12 +320,12 @@ Matrix ApplyDerivativeActivationThreads(const Matrix& m) {
   return matrix;
 }
 
-Matrix ApplyDerivativeActivationOmp(const Matrix& m) {
+Matrix DeriveActivateOmp(const Matrix& m, ActivationFunction func) {
   Matrix matrix(m.size(), Vector(m[0].size()));
 #pragma omp parallel for
   for (std::size_t i{0u}; i < m.size(); ++i) {
     for (std::size_t j{0u}; j < m[0].size(); ++j) {
-      matrix[i][j] = DerivativeSigmoid(m[i][j]);
+      matrix[i][j] = ApplyDerivativeActivate(m[i][j], func);
     }
   }
   return matrix;
@@ -408,16 +406,17 @@ void OddMatrixProcessing(Matrix& res, const Matrix& m1, const Matrix& m2) {
   }
 }
 
-void ApplyActivationElement(Matrix& res, const Matrix& m, const std::size_t i) {
+void ActivateElement(Matrix& res, const Matrix& m, const std::size_t i,
+                     ActivationFunction func) {
   for (std::size_t j{0}; j < res[0].size(); ++j) {
-    res[i][j] = Sigmoid(m[i][j]);
+    res[i][j] = ApplyActivate(m[i][j], func);
   }
 }
 
-void ApplyDerivativeActivationElement(Matrix& res, const Matrix& m,
-                                      const std::size_t i) {
+void DeriveActivateElement(Matrix& res, const Matrix& m, const std::size_t i,
+                           ActivationFunction func) {
   for (std::size_t j{0}; j < res[0].size(); ++j) {
-    res[i][j] = DerivativeSigmoid(m[i][j]);
+    res[i][j] = ApplyDerivativeActivate(m[i][j], func);
   }
 }
 

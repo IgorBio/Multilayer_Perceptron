@@ -29,8 +29,9 @@ void MatrixMlp::SetInputLayer(const Vector &layer) {
 
 void MatrixMlp::ForwardPropagation() {
   for (std::size_t i{0u}; i < weights_.size(); ++i) {
-    neurons_[i + 1] = Activate(
-        MultiplyWinograd(weights_[i], neurons_[i], parallel_), parallel_);
+    neurons_[i + 1] =
+        Activate(MultiplyWinograd(weights_[i], neurons_[i], parallel_),
+                 parallel_, acivation_);
   }
 }
 
@@ -40,12 +41,12 @@ void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
     output[i][0] = answer[i];
   }
   Matrix errors = Subtraction(neurons_.back(), output, parallel_);
-  Matrix gradient = ApplyDerivativeActivationParallel(neurons_.back());
+  Matrix gradient = DeriveActivate(neurons_.back(), parallel_, acivation_);
   errors = MultiplyHadamard(errors, gradient, parallel_);
   UpdateWeights(errors, lr, weights_.size() - 1);
 
   for (int i{static_cast<int>(weights_.size()) - 2}; i >= 0; --i) {
-    gradient = ApplyDerivativeActivationParallel(neurons_[i + 1]);
+    gradient = DeriveActivate(neurons_[i + 1], parallel_, acivation_);
     Matrix transposed = Transpose(weights_[i + 1], parallel_);
     errors = MultiplyWinograd(transposed, errors, parallel_);
     errors = MultiplyHadamard(errors, gradient, parallel_);
@@ -90,6 +91,18 @@ void MatrixMlp::SetWeights(const Vector &weights) {
       }
     }
   }
+}
+
+Parallel MatrixMlp::GetParallel() const { return parallel_; }
+
+void MatrixMlp::SetParallel(Parallel parallel) { parallel_ = parallel; }
+
+ActivationFunction MatrixMlp::GetActivationFunction() const {
+  return acivation_;
+}
+
+void MatrixMlp::SetActivationFunction(ActivationFunction activation) {
+  acivation_ = activation;
 }
 
 }  // namespace s21
