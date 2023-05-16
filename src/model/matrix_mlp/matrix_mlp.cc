@@ -2,20 +2,20 @@
 
 namespace s21 {
 
-MatrixMlp::MatrixMlp(Architecture architecture)
-    : layers_(architecture.hidden_layers + 2) {
-  AddWheights(architecture.hidden_layer, architecture.input_layer);
+MatrixMlp::MatrixMlp(Topology topology)
+    : neurons_(topology.hidden_layers + 2), biases_{0} {
+  AddWheights(topology.hidden_layer, topology.input_layer);
 
-  for (std::size_t i{0u}; i < architecture.hidden_layers - 1; ++i) {
-    AddWheights(architecture.hidden_layer, architecture.hidden_layer);
+  for (std::size_t i{0u}; i < topology.hidden_layers - 1; ++i) {
+    AddWheights(topology.hidden_layer, topology.hidden_layer);
   }
 
-  AddWheights(architecture.output_layer, architecture.hidden_layer);
+  AddWheights(topology.output_layer, topology.hidden_layer);
 }
 
 void MatrixMlp::AddWheights(std::size_t rows, std::size_t cols) {
   Matrix wheights(rows, Vector(cols));
-  RandomMatrixParallel(wheights);
+  RandomMatrix(wheights, parallel_);
   weights_.push_back(wheights);
 }
 
@@ -24,13 +24,13 @@ void MatrixMlp::SetInputLayer(const Vector &layer) {
   for (std::size_t i{0u}; i < layer.size(); ++i) {
     input[i][0] = layer[i];
   }
-  layers_.front() = std::move(input);
+  neurons_.front() = std::move(input);
 }
 
 void MatrixMlp::ForwardPropagation() {
   for (std::size_t i{0u}; i < weights_.size(); ++i) {
-    layers_[i + 1] = ApplyActivationParallel(
-        MultiplyWinogradParallel(weights_[i], layers_[i]));
+    neurons_[i + 1] = Activate(
+        MultiplyWinograd(weights_[i], neurons_[i], parallel_), parallel_);
   }
 }
 
@@ -39,36 +39,37 @@ void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
   for (std::size_t i{0u}; i < answer.size(); ++i) {
     output[i][0] = answer[i];
   }
-  Matrix errors = SubtractionParallel(layers_.back(), output);
-  Matrix gradient = ApplyDerivativeActivationParallel(layers_.back());
-  errors = MultiplyHadamardParallel(errors, gradient);
-  AdjustWeights(errors, lr, weights_.size() - 1);
+  Matrix errors = Subtraction(neurons_.back(), output, parallel_);
+  Matrix gradient = ApplyDerivativeActivationParallel(neurons_.back());
+  errors = MultiplyHadamard(errors, gradient, parallel_);
+  UpdateWeights(errors, lr, weights_.size() - 1);
 
   for (int i{static_cast<int>(weights_.size()) - 2}; i >= 0; --i) {
-    gradient = ApplyDerivativeActivationParallel(layers_[i + 1]);
-    Matrix transposed = TransposeParallel(weights_[i + 1]);
-    errors = MultiplyWinogradParallel(transposed, errors);
-    errors = MultiplyHadamardParallel(errors, gradient);
-    AdjustWeights(errors, lr, i);
+    gradient = ApplyDerivativeActivationParallel(neurons_[i + 1]);
+    Matrix transposed = Transpose(weights_[i + 1], parallel_);
+    errors = MultiplyWinograd(transposed, errors, parallel_);
+    errors = MultiplyHadamard(errors, gradient, parallel_);
+    UpdateWeights(errors, lr, i);
   }
 }
 
-void MatrixMlp::AdjustWeights(const Matrix &errors, double lr, size_t idx) {
-  Matrix transposed = TransposeParallel(layers_[idx]);
-  Matrix step = MultiplyNumberParallel(errors, lr);
-  Matrix diff = MultiplyWinogradParallel(step, transposed);
-  weights_[idx] = SubtractionParallel(weights_[idx], diff);
+void MatrixMlp::UpdateWeights(const Matrix &errors, double lr,
+                              std::size_t idx) {
+  Matrix transposed = Transpose(neurons_[idx], parallel_);
+  Matrix step = MultiplyNumber(errors, lr, parallel_);
+  Matrix diff = MultiplyWinograd(step, transposed, parallel_);
+  weights_[idx] = Subtraction(weights_[idx], diff, parallel_);
 }
 
-Vector MatrixMlp::GetOutput() {
-  Vector result(layers_.back().size(), 0);
-  for (size_t i{0u}; i < layers_.back().size(); ++i) {
-    result[i] = layers_.back()[i][0];
+Vector MatrixMlp::GetOutput() const {
+  Vector output(neurons_.back().size(), 0);
+  for (std::size_t i{0u}; i < neurons_.back().size(); ++i) {
+    output[i] = neurons_.back()[i][0];
   }
-  return result;
+  return output;
 }
 
-Vector MatrixMlp::GetWeights() {
+Vector MatrixMlp::GetWeights() const {
   Vector weights;
   for (auto &matrix : weights_) {
     for (std::size_t row{0u}; row < matrix.size(); ++row) {

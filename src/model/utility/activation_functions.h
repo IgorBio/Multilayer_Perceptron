@@ -1,5 +1,5 @@
-#ifndef SRC_MODEL_UTILITY_ACTIVATION_FUNCTIONS_H_
-#define SRC_MODEL_UTILITY_ACTIVATION_FUNCTIONS_H_
+#ifndef MLP_MODEL_UTILITY_ACTIVATION_FUNCTIONS_H_
+#define MLP_MODEL_UTILITY_ACTIVATION_FUNCTIONS_H_
 
 #include <cmath>
 
@@ -10,4 +10,4 @@ double DerivativeSigmoid(double x) { return x * (1.0 - x); }
 
 }  // namespace s21
 
-#endif  // SRC_MODEL_UTILITY_ACTIVATION_FUNCTIONS_H_
+#endif  // MLP_MODEL_UTILITY_ACTIVATION_FUNCTIONS_H_

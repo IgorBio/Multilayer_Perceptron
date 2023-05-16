@@ -1,5 +1,5 @@
-#ifndef SRC_MODEL_CONFIG_H_
-#define SRC_MODEL_CONFIG_H_
+#ifndef MLP_MODEL_CONFIG_H_
+#define MLP_MODEL_CONFIG_H_
 
 #include <vector>
 
@@ -15,7 +15,7 @@ struct Metrics {
   std::size_t time = 0u;
 };
 
-struct Architecture {
+struct Topology {
   std::size_t hidden_layers = 2u;
   std::size_t input_layer = 784u;
   std::size_t hidden_layer = 1000u;
@@ -53,10 +53,11 @@ class Config {
   TrainType train_type_ = TrainType::kTrain;
   double test_sample_ = 1.0;
   std::size_t k_folds_ = 1u;
-  std::size_t epochs_ = 20u;
+  std::size_t epochs_ = 5u;
   double learning_rate_ = 0.1;
+  double activation_threshold = 0.5;
 };
 
 }  // namespace s21
 
-#endif  // SRC_MODEL_CONFIG_H_
+#endif  // MLP_MODEL_CONFIG_H_

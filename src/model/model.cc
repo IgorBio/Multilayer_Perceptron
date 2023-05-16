@@ -13,13 +13,12 @@ void Model::SetConfiguration(const Config& config) {
 
 void Model::SetWeights(
     const std::string& filename,
-    std::function<void(Architecture, std::size_t, std::size_t)>
-        success_callback,
+    std::function<void(Topology, std::size_t, std::size_t)> success_callback,
     std::function<void(const std::string&)> error_callback) {
   try {
     auto data = WeightReader::Read(filename);
 
-    mlp_ = std::make_unique<MLP>(config_.GetModelType(), data.architecture);
+    mlp_ = std::make_unique<MLP>(config_.GetModelType(), data.topology);
     mlp_->SetWeights(data.weights);
 
     if (success_callback)
@@ -88,9 +87,9 @@ void Model::Train(std::function<void()> start_callback,
                   epoch_end_callback, test_start_callback,
                   test_progress_callback, test_end_callback,
                   end_callback]() -> void {
-    Architecture architecture;
-    architecture.hidden_layers = config_.GetHiddenLayers();
-    mlp_ = std::make_unique<MLP>(config_.GetModelType(), architecture);
+    Topology topology;
+    topology.hidden_layers = config_.GetHiddenLayers();
+    mlp_ = std::make_unique<MLP>(config_.GetModelType(), topology);
 
     mlp_->Train(
         train_dataset_, config_.GetEpochs(), config_.GetLearningRate(),
@@ -151,8 +150,8 @@ void Model::TrainCrossValidation(
     Metrics best_metrics;
 
     ModelType type = config_.GetModelType();
-    Architecture architecture;
-    architecture.hidden_layers = config_.GetHiddenLayers();
+    Topology topology;
+    topology.hidden_layers = config_.GetHiddenLayers();
 
     size_t block_size = train_dataset_.size() / k;
     // std::cout << block_size << std::endl;
@@ -163,7 +162,7 @@ void Model::TrainCrossValidation(
       test_data.splice(test_data.begin(), train_dataset_,
                        train_dataset_.begin(),
                        std::next(train_dataset_.begin(), block_size));
-      network_cv = std::make_unique<MLP>(type, architecture);
+      network_cv = std::make_unique<MLP>(type, topology);
       network_cv->Train(train_dataset_, epochs, config_.GetLearningRate(),
                         nullptr, progress_callback, nullptr, nullptr,
                         test_exit_flag_);

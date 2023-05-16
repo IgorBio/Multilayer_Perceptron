@@ -1,28 +1,44 @@
-#ifndef SRC_MODEL_UTILITY_MATRIX_OPERATIONS_H_
-#define SRC_MODEL_UTILITY_MATRIX_OPERATIONS_H_
+#ifndef MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_
+#define MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_
 
-#include <functional>
 #include <random>
 #include <stdexcept>
 #include <thread>
 #include <vector>
 
-#include "activation_functions.h"
-
 namespace s21 {
+
+enum class Parallel { kMaxThreads, kOpenMP };
 
 using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
 using Threads = std::vector<std::thread>;
 
-void RandomMatrixParallel(Matrix &);
-Matrix SubtractionParallel(const Matrix &, const Matrix &);
-Matrix TransposeParallel(const Matrix &);
-Matrix MultiplyNumberParallel(const Matrix &, const double);
-Matrix MultiplyHadamardParallel(const Matrix &, const Matrix &);
-Matrix MultiplyWinogradParallel(const Matrix &, const Matrix &);
-Matrix ApplyActivationParallel(const Matrix &);
-Matrix ApplyDerivativeActivationParallel(const Matrix &);
+void RandomMatrix(Matrix &, Parallel);
+Matrix Subtraction(const Matrix &, const Matrix &, Parallel);
+Matrix Transpose(const Matrix &, Parallel);
+Matrix MultiplyNumber(const Matrix &, const double, Parallel);
+Matrix MultiplyHadamard(const Matrix &, const Matrix &, Parallel);
+Matrix MultiplyWinograd(const Matrix &, const Matrix &, Parallel);
+Matrix Activate(const Matrix &, Parallel);
+Matrix DeriveActivate(const Matrix &, Parallel);
+
+void RandomMatrixThreads(Matrix &);
+void RandomMatrixOmp(Matrix &);
+Matrix SubtractionThreads(const Matrix &, const Matrix &);
+Matrix SubtractionOmp(const Matrix &, const Matrix &);
+Matrix TransposeThreads(const Matrix &);
+Matrix TransposeOmp(const Matrix &);
+Matrix MultiplyNumberThreads(const Matrix &, const double);
+Matrix MultiplyNumberOmp(const Matrix &, const double);
+Matrix MultiplyHadamardThreads(const Matrix &, const Matrix &);
+Matrix MultiplyHadamardOmp(const Matrix &, const Matrix &);
+Matrix MultiplyWinogradThreads(const Matrix &, const Matrix &);
+Matrix MultiplyWinogradOmp(const Matrix &, const Matrix &);
+Matrix ApplyActivationThreads(const Matrix &);
+Matrix ApplyActivationOmp(const Matrix &);
+Matrix ApplyDerivativeActivationThreads(const Matrix &);
+Matrix ApplyDerivativeActivationOmp(const Matrix &);
 
 void RandomElement(Matrix &, const std::size_t);
 double RandomWeight();
@@ -43,4 +59,4 @@ void ApplyDerivativeActivationElement(Matrix &, const Matrix &,
 
 }  // namespace s21
 
-#endif  // SRC_MODEL_UTILITY_MATRIX_OPERATIONS_H_
+#endif  // MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_

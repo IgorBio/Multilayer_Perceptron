@@ -1,5 +1,5 @@
-#ifndef SRC_MODEL_MLP_H_
-#define SRC_MODEL_MLP_H_
+#ifndef MLP_MODEL_MLP_H_
+#define MLP_MODEL_MLP_H_
 
 #include <atomic>
 // #include <ctime>
@@ -13,11 +13,11 @@
 // #include <sstream>
 #include <vector>
 
-// #include "../image.h"
+#include "../io/image.h"
 // #include "../reader/csv_reader.h"
 // #include "graph_network/graph_network.h"
 // #include "io/weight_writer.h"
-// #include "matrix_network/matrix_network.h"
+#include "matrix_mlp/matrix_mlp.h"
 // #include "network_interface.h"
 #include "config.h"
 
@@ -25,14 +25,13 @@ namespace s21 {
 
 class MLP {
  public:
-  MLP(ModelType type, Architecture architecture)
-      : type_(type), architecture_(architecture) {
+  MLP(ModelType type, Topology topology) : type_(type), topology_(topology) {
     switch (type) {
       case ModelType::kMatrix:
-        network_ = std::make_unique<MatrixNetwork>(architecture);
+        mlp_ = std::make_unique<MatrixMlp>(topology);
         break;
       case ModelType::kGraph:
-        network_ = std::make_unique<GraphNetwork>(architecture);
+        mlp_ = std::make_unique<GraphNetwork>(topology);
         break;
     }
   }
@@ -61,16 +60,16 @@ class MLP {
   void SetWeights(const std::vector<double>& weights);
 
   ModelType GetType() const { return type_; }
-  const Architecture& GetSettings() const { return architecture_; }
+  const Topology& GetSettings() const { return topology_; }
 
  private:
   std::vector<double> ExpectedOutput(const Image& image);
 
   ModelType type_;
-  Architecture architecture_;
-  std::unique_ptr<NetworkInterface> network_;
+  Topology topology_;
+  std::unique_ptr<MatrixMlp> mlp_;
 };
 
 }  // namespace s21
 
-#endif  // SRC_MODEL_MLP_H_
+#endif  // MLP_MODEL_MLP_H_

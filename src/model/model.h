@@ -1,5 +1,5 @@
-#ifndef SRC_MODEL_MODEL_H_
-#define SRC_MODEL_MODEL_H_
+#ifndef MLP_MODEL_MODEL_H_
+#define MLP_MODEL_MODEL_H_
 
 #include <atomic>
 // #include <iostream>
@@ -18,14 +18,14 @@ class Model {
   Config GetConfiguration() const { return config_; }
   void SetConfiguration(const Config& config);
 
-  const Architecture& GetSettings() const { return mlp_->GetSettings(); }
+  const Topology& GetSettings() const { return mlp_->GetSettings(); }
 
   std::vector<double> GetWeights() const { return mlp_->GetWeights(); }
 
   void SetWeights(
       const std::string& filename,
-      std::function<void(Architecture, std::size_t, std::size_t)>
-          success_callback = nullptr,
+      std::function<void(Topology, std::size_t, std::size_t)> success_callback =
+          nullptr,
       std::function<void(const std::string&)> error_callback = nullptr);
 
   void SetTrainDataset(
@@ -88,4 +88,4 @@ class Model {
 
 }  // namespace s21
 
-#endif  // SRC_MODEL_MODEL_H_
+#endif  // MLP_MODEL_MODEL_H_

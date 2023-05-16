@@ -30,9 +30,9 @@ void MLP::TrainEpoch(const std::list<Image>& data, double learning_rate,
   for (const Image& image : data) {
     if (exit) break;
 
-    network_->SetInput(image.GetData());
-    network_->ForwardPropagation();
-    network_->BackPropagation(ExpectedOutput(image), learning_rate);
+    mlp_->SetInput(image.GetPixels());
+    mlp_->ForwardPropagation();
+    mlp_->BackPropagation(ExpectedOutput(image), learning_rate);
 
     std::size_t progress = static_cast<std::size_t>(
         static_cast<double>(count) / static_cast<double>(data_size) * 100);
@@ -68,7 +68,7 @@ Metrics MLP::Test(const std::list<Image>& data, double part,
     if (exit) break;
 
     std::pair<int, double> res = Predict(image);
-    if (res.first == image.GetNumber() - 1) {
+    if (res.first == image.GetLabel() - 1) {
       if (res.second > kActivationThreshold)
         true_pos++;
       else
@@ -109,9 +109,9 @@ std::vector<double> MLP::ExpectedOutput(const Image& image) {
 }
 
 std::vector<double> MLP::Prediction(const Image& image) {
-  network_->SetInput(image.GetData());
-  network_->ForwardPropagation();
-  return network_->GetOutput();
+  mlp_->SetInput(image.GetData());
+  mlp_->ForwardPropagation();
+  return mlp_->GetOutput();
 }
 
 std::pair<std::size_t, double> MLP::Predict(const Image& image) {
@@ -122,9 +122,9 @@ std::pair<std::size_t, double> MLP::Predict(const Image& image) {
 }
 
 void MLP::SetWeights(const std::vector<double>& weights) {
-  network_->LoadWeights(weights);
+  mlp_->LoadWeights(weights);
 }
 
-std::vector<double> MLP::GetWeights() const { return network_->GetWeights(); }
+std::vector<double> MLP::GetWeights() const { return mlp_->GetWeights(); }
 
 }  // namespace s21

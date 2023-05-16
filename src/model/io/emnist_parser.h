@@ -1,5 +1,5 @@
-#ifndef SRC_MODEL_PARSER_EMNIST_PARSER_H
-#define SRC_MODEL_PARSER_EMNIST_PARSER_H
+#ifndef MLP_MODEL_IO_EMNIST_PARSER_H
+#define MLP_MODEL_IO_EMNIST_PARSER_H
 
 #include <fstream>
 #include <string>
@@ -20,4 +20,4 @@ class EmnistParser {
 };
 }  // namespace s21
 
-#endif  // SRC_MODEL_PARSER_EMNIST_PARSER_H
+#endif  // MLP_MODEL_IO_EMNIST_PARSER_H
