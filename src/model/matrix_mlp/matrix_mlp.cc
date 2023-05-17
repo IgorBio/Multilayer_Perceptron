@@ -15,7 +15,7 @@ MatrixMlp::MatrixMlp(Topology topology)
 
 void MatrixMlp::AddWheights(std::size_t rows, std::size_t cols) {
   Matrix wheights(rows, Vector(cols));
-  RandomMatrix(wheights, parallel_);
+  Randomize(wheights);
   weights_.push_back(wheights);
 }
 
@@ -40,14 +40,14 @@ void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
   for (std::size_t i{0u}; i < answer.size(); ++i) {
     output[i][0] = answer[i];
   }
-  Matrix errors = Subtraction(neurons_.back(), output, parallel_);
+  Matrix errors = Subtraction(neurons_.back(), output);
   Matrix gradient = DeriveActivate(neurons_.back(), parallel_, acivation_);
   errors = MultiplyHadamard(errors, gradient, parallel_);
   UpdateWeights(errors, lr, weights_.size() - 1);
 
   for (int i{static_cast<int>(weights_.size()) - 2}; i >= 0; --i) {
     gradient = DeriveActivate(neurons_[i + 1], parallel_, acivation_);
-    Matrix transposed = Transpose(weights_[i + 1], parallel_);
+    Matrix transposed = Transpose(weights_[i + 1]);
     errors = MultiplyWinograd(transposed, errors, parallel_);
     errors = MultiplyHadamard(errors, gradient, parallel_);
     UpdateWeights(errors, lr, i);
@@ -56,10 +56,10 @@ void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
 
 void MatrixMlp::UpdateWeights(const Matrix &errors, double lr,
                               std::size_t idx) {
-  Matrix transposed = Transpose(neurons_[idx], parallel_);
-  Matrix step = MultiplyNumber(errors, lr, parallel_);
+  Matrix transposed = Transpose(neurons_[idx]);
+  Matrix step = MultiplyNumber(errors, lr);
   Matrix diff = MultiplyWinograd(step, transposed, parallel_);
-  weights_[idx] = Subtraction(weights_[idx], diff, parallel_);
+  weights_[idx] = Subtraction(weights_[idx], diff);
 }
 
 Vector MatrixMlp::GetOutput() const {

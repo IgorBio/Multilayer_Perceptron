@@ -4,6 +4,7 @@ APP=MLP
 
 CC=g++ -std=c++17 -Wall -Werror -Wextra
 CHECKFLAGS=-lgtest
+OPENMP=-fopenmp
 CURRENTDIR = $(shell pwd)
 BUILD_DIR=build
 APP_DIR=MLP
@@ -12,7 +13,8 @@ GCOV=--coverage
 OPEN=
 FILTER=
 CPPCHECKFLAGS = --enable=all --suppress=missingIncludeSystem --language=c++ --std=c++17
-TEST_LIB:=./tests/tests_main.cc
+TEST_LIB:=./tests/tests_main.cc \
+	./model/utility/matrix_operations.cc
 
 OS = $(shell uname)
 
@@ -56,7 +58,7 @@ dvi:
 	$(OPEN) ./docs/html/index.html
 
 tests: mostlyclean
-	@$(CC) $(TEST_LIB) $(CHECKFLAGS) -o Test
+	@$(CC) $(TEST_LIB) $(CHECKFLAGS) $(OPENMP) -o Test
 	@./Test
 	@rm -rf *.o *.a Test
 
@@ -92,3 +94,6 @@ ifeq ($(OS), Linux)
 else
 	open $(APP_DIR)/$(APP).app
 endif
+
+my:
+	g++ ./model/my.cc ./model/utility/matrix_operations.cc $(OPENMP)  && ./a.out

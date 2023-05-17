@@ -6,9 +6,10 @@
 // #include "io/emnist_parser.h"
 #include "utility/matrix_operations.h"
 
-s21::Matrix RandomMatrix(int rows, int cols);
+s21::Matrix RandomMatrixStandart(int rows, int cols);
 void PrintMatrix(s21::Matrix m);
-s21::Matrix RandomMatrix(int rows, int cols) {
+
+s21::Matrix RandomMatrixStandart(int rows, int cols) {
   s21::Matrix matrix(rows, s21::Vector(cols));
   std::random_device random_device;
   std::mt19937 random_generator{random_device()};
@@ -42,13 +43,33 @@ int main() {
   //   }
   // std::cout << dataset[0].GetPixels().size() << std::endl;
 
-  // s21::Matrix m1 = {{2, 3, 3, 10}, {2, 3, 4, 20}};
-  // s21::Matrix m2 = {{1, 2, 3, 4}, {2, 3, 4, 5}};
-  // s21::Matrix m1 = RandomMatrix(784, 784);
-  // s21::Matrix m2 = RandomMatrix(784, 784);
-  s21::Matrix res = s21::Matrix(1, s21::Vector(784));
+  // s21::Matrix m1 = s21::Matrix(1000, s21::Vector(1000));
+  // s21::Matrix m2 = s21::Matrix(1000, s21::Vector(1000));
+  // s21::Randomize(m1);
+  // s21::Randomize(m2);
+
+  // s21::Matrix m1 = {{1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
+  // s21::Matrix m2 = {{-1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
+  double d = 5;
+  s21::Matrix m1 = RandomMatrixStandart(200, 200);
+  s21::Matrix m2 = RandomMatrixStandart(200, 200);
+
+  // s21::Matrix res = s21::Matrix(10, s21::Vector(10));
+
   auto start = std::chrono::steady_clock::now();
-  s21::RandomMatrixParallel(res);
+
+  // s21::Randomize(res);
+  // s21::Matrix res = s21::Subtraction(m1, m2);
+  // s21::Matrix res = s21::Transpose(m1);
+  // s21::Matrix res = s21::MultiplyNumber(m1, d);
+  // s21::Matrix res = s21::MultiplyHadamard(m1, m2);
+  s21::Matrix res = s21::MultiplyWinograd(m1, m2, s21::Parallel::kMaxThreads);
+  auto end = std::chrono::steady_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  std::cout << "Elapsed Time : " << std::to_string(elapsed.count()) << " sec"
+            << std::endl;
+
+  // s21::Matrix res = RandomMatrixStandart(1000, 1000);
   // for (size_t i = 0; i < res.size(); ++i) {
   //   for (size_t j = 0; j < res[0].size(); ++j) {
   //     for (size_t k = 0; k < m2.size(); k++) {
@@ -56,11 +77,6 @@ int main() {
   //     }
   //   }
   // }
-  auto end = std::chrono::steady_clock::now();
-  std::chrono::duration<double> elapsed = end - start;
-  std::cout << "Elapsed Time : " << std::to_string(elapsed.count()) << " sec"
-            << std::endl;
-
   // PrintMatrix(m1);
   // PrintMatrix(m2);
   // PrintMatrix(res);
