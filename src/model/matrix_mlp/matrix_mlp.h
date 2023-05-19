@@ -16,8 +16,6 @@ class MatrixMlp {
   Vector GetOutput() const;
   Vector GetWeights() const;
   void SetWeights(const Vector &);
-  Parallel GetParallel() const;
-  void SetParallel(Parallel);
   ActivationFunction GetActivationFunction() const;
   void SetActivationFunction(ActivationFunction);
 
@@ -28,7 +26,6 @@ class MatrixMlp {
   std::vector<Matrix> weights_;
   std::vector<Matrix> neurons_;
   Vector biases_;
-  Parallel parallel_ = Parallel::kMaxThreads;
   ActivationFunction acivation_ = ActivationFunction::kSigmoid;
 };
 

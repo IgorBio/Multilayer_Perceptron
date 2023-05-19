@@ -27,7 +27,7 @@ const std::array<double, 20001> sigmoid_table = []() {
   return table;
 }();
 
-double ApplyActivation(double x, ActivationFunction func) {
+inline double ApplyActivation(double x, ActivationFunction func) {
   if (func == ActivationFunction::kSigmoid) {
     if (x >= -10.0 and x <= 10.0) {
       return sigmoid_table[static_cast<int>(x * 1000) + 10000];
@@ -39,7 +39,7 @@ double ApplyActivation(double x, ActivationFunction func) {
   throw std::invalid_argument("Invalid activation function type");
 }
 
-double ApplyDerivativeActivation(double x, ActivationFunction func) {
+inline double ApplyDerivativeActivation(double x, ActivationFunction func) {
   if (func == ActivationFunction::kSigmoid) return DerivativeSigmoid(x);
   if (func == ActivationFunction::kTanh) return DerivativeTanh(x);
   if (func == ActivationFunction::kRelu) return DerivativeRelu(x);

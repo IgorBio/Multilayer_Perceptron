@@ -1,11 +1,12 @@
 #include "matrix_operations.h"
 
-#include "activation_functions.h"
-
 namespace s21 {
 
 void Randomize(Matrix& m) {
-  std::size_t rows = m.size(), cols = m[0].size();
+  if (m.empty()) {
+    throw std::logic_error("Matrix have inconsistent dimensions");
+  }
+  const std::size_t rows = m.size(), cols = m[0].size();
 #pragma omp parallel for
   for (std::size_t i = 0; i < rows; ++i) {
     for (std::size_t j = 0; j < cols; ++j) {
@@ -21,13 +22,14 @@ double RandomWeight() {
 }
 
 Matrix Subtraction(const Matrix& m1, const Matrix& m2) {
-  if (m1.size() != m2.size() or m1[0].size() != m2[0].size()) {
+  if (m1.empty() or m2.empty() or m1.size() != m2.size() or
+      m1[0].size() != m2[0].size()) {
     throw std::logic_error("Matrices have inconsistent dimensions");
   }
   Matrix matrix(m1.size(), Vector(m1[0].size()));
 #pragma omp parallel for
   for (std::size_t i = 0u; i < m1.size(); ++i) {
-    const auto &row_m1 = m1[i], row_m2 = m2[i];
+    const auto &row_m1 = m1[i], &row_m2 = m2[i];
     Vector& row_result = matrix[i];
     for (std::size_t j = 0u; j < row_m1.size(); ++j) {
       row_result[j] = row_m1[j] - row_m2[j];
@@ -38,6 +40,9 @@ Matrix Subtraction(const Matrix& m1, const Matrix& m2) {
 }
 
 Matrix Transpose(const Matrix& m) {
+  if (m.empty()) {
+    throw std::logic_error("Matrix have inconsistent dimensions");
+  }
   const std::size_t rows = m[0].size(), cols = m.size();
   Matrix matrix(rows, Vector(cols));
 #pragma omp parallel for
@@ -51,6 +56,9 @@ Matrix Transpose(const Matrix& m) {
 }
 
 Matrix MultiplyNumber(const Matrix& m, const double d) {
+  if (m.empty()) {
+    throw std::logic_error("Matrix have inconsistent dimensions");
+  }
   const std::size_t rows = m.size(), cols = m[0].size();
   Matrix matrix(rows, Vector(cols));
 #pragma omp parallel for
@@ -66,13 +74,14 @@ Matrix MultiplyNumber(const Matrix& m, const double d) {
 }
 
 Matrix MultiplyHadamard(const Matrix& m1, const Matrix& m2) {
-  if (m1.size() != m2.size() or m1[0].size() != m2[0].size()) {
+  if (m1.empty() or m2.empty() or m1.size() != m2.size() or
+      m1[0].size() != m2[0].size()) {
     throw std::logic_error("Matrices have inconsistent dimensions");
   }
   Matrix matrix(m1.size(), Vector(m1[0].size()));
 #pragma omp parallel for
   for (std::size_t i = 0u; i < m1.size(); ++i) {
-    const auto &row_m1 = m1[i], row_m2 = m2[i];
+    const auto &row_m1 = m1[i], &row_m2 = m2[i];
     Vector& row_result = matrix[i];
     for (std::size_t j = 0u; j < row_m1.size(); ++j) {
       row_result[j] = row_m1[j] * row_m2[j];
@@ -82,113 +91,46 @@ Matrix MultiplyHadamard(const Matrix& m1, const Matrix& m2) {
   return matrix;
 }
 
-Matrix MultiplyWinograd(const Matrix& m1, const Matrix& m2, Parallel parallel) {
-  if (parallel == Parallel::kMaxThreads) return MultiplyWinogradThreads(m1, m2);
-  if (parallel == Parallel::kOpenMP) return MultiplyWinogradOmp(m1, m2);
-  throw std::invalid_argument("Invalid parallel type");
-}
-
-Matrix Activate(const Matrix& m, Parallel parallel, ActivationFunction func) {
-  if (parallel == Parallel::kMaxThreads) return ActivateThreads(m, func);
-  if (parallel == Parallel::kOpenMP) return ActivateOmp(m, func);
-  throw std::invalid_argument("Invalid parallel type");
-}
-
-Matrix DeriveActivate(const Matrix& m, Parallel parallel,
-                      ActivationFunction func) {
-  if (parallel == Parallel::kMaxThreads) return DeriveActivateThreads(m, func);
-  if (parallel == Parallel::kOpenMP) return DeriveActivateOmp(m, func);
-  throw std::invalid_argument("Invalid parallel type");
-}
-
-Matrix MultiplyWinogradThreads(const Matrix& m1, const Matrix& m2) {
-  if (m1[0].size() != m2.size()) {
+Matrix MultiplyWinograd(const Matrix& m1, const Matrix& m2) {
+  if (m1.empty() or m2.empty() or m1[0].size() != m2.size()) {
     throw std::logic_error("Matrices have inconsistent dimensions");
   }
-  std::size_t rows = m1.size(), cols = m2[0].size();
-  Matrix matrix = Matrix(rows, Vector(cols));
-  Vector row_factor = Vector(rows);
-  Vector col_factor = Vector(cols);
-  Threads threads = Threads(2);
 
-  threads[0] = std::move(std::thread{[&]() {
-    for (std::size_t idx{0u}; idx < rows; ++idx) {
-      GetRowFactor(m1, row_factor, idx);
+  const std::size_t rows_m1 = m1.size(), cols_m2 = m2[0].size();
+  Matrix result_matrix(rows_m1, Vector(cols_m2));
+
+  // Compute row-wise factors
+  Vector row_factors(rows_m1);
+  ComputeRowFactors(m1, row_factors);
+
+  // Compute column-wise factors
+  Vector col_factors(cols_m2);
+  ComputeColFactors(m2, col_factors);
+
+  // Compute the result matrix in parallel using threads
+  const std::size_t num_threads = std::thread::hardware_concurrency();
+  std::vector<std::thread> threads(num_threads);
+  std::size_t chunk_size = rows_m1 / num_threads;
+  std::size_t start_row = 0, end_row = chunk_size;
+  for (std::size_t t = 0; t < num_threads; ++t) {
+    if (t == num_threads - 1) {
+      end_row = rows_m1;
     }
-  }});
-  threads[1] = std::move(std::thread{[&]() {
-    for (std::size_t idx{0u}; idx < cols; ++idx) {
-      GetColFactor(m2, col_factor, idx);
-    }
-  }});
-
-  threads[0].join();
-  threads[1].join();
-
-  threads.resize(std::thread::hardware_concurrency());
-
-  auto job = [&](std::size_t idx) {
-    GetResultMatrix(matrix, m1, m2, row_factor, col_factor, idx);
-  };
-
-  for (std::size_t idx{0u}; idx < rows; ++idx) {
-    if (threads[idx % threads.size()].joinable()) {
-      threads[idx % threads.size()].join();
-    }
-    threads[idx % threads.size()] = std::move(std::thread{job, idx});
+    threads[t] = std::thread(ComputeResultMatrix, std::cref(m1), std::cref(m2),
+                             std::cref(row_factors), std::cref(col_factors),
+                             std::ref(result_matrix), start_row, end_row);
+    start_row += chunk_size;
+    end_row += chunk_size;
   }
+  // Join all threads
   for (auto& thread : threads) {
-    if (thread.joinable()) thread.join();
+    thread.join();
   }
-  OddMatrixProcessing(matrix, m1, m2);
-  return matrix;
+
+  return result_matrix;
 }
 
-Matrix MultiplyWinogradOmp(const Matrix& m1, const Matrix& m2) {
-  if (m1[0].size() != m2.size()) {
-    throw std::logic_error("Matrices have inconsistent dimensions");
-  }
-  std::size_t rows = m1.size(), cols = m2[0].size();
-  Matrix matrix = Matrix(rows, Vector(cols));
-  Vector row_factor = Vector(rows);
-  Vector col_factor = Vector(cols);
-#pragma omp parallel for
-  for (std::size_t idx = 0u; idx < rows; ++idx) {
-    GetRowFactor(m1, row_factor, idx);
-  }
-#pragma omp parallel for
-  for (std::size_t idx = 0u; idx < cols; ++idx) {
-    GetColFactor(m2, col_factor, idx);
-  }
-#pragma omp parallel for
-  for (std::size_t idx = 0u; idx < rows; ++idx) {
-    GetResultMatrix(matrix, m1, m2, row_factor, col_factor, idx);
-  }
-
-  OddMatrixProcessing(matrix, m1, m2);
-  return matrix;
-}
-
-Matrix ActivateThreads(const Matrix& m, ActivationFunction func) {
-  std::size_t rows = m.size(), cols = m[0].size();
-  Matrix matrix = Matrix(rows, Vector(cols));
-  Threads threads = Threads(std::thread::hardware_concurrency());
-
-  auto job = [&](std::size_t idx) { ActivateElement(matrix, m, idx, func); };
-
-  for (std::size_t idx{0u}; idx < rows; ++idx) {
-    if (threads[idx % threads.size()].joinable()) {
-      threads[idx % threads.size()].join();
-    }
-    threads[idx % threads.size()] = std::move(std::thread{job, idx});
-  }
-  for (auto& thread : threads) {
-    if (thread.joinable()) thread.join();
-  }
-  return matrix;
-}
-
-Matrix ActivateOmp(const Matrix& m, ActivationFunction func) {
+Matrix Activate(const Matrix& m, ActivationFunction func) {
   Matrix matrix(m.size(), Vector(m[0].size()));
 #pragma omp parallel for
   for (std::size_t i = 0u; i < m.size(); ++i) {
@@ -199,28 +141,7 @@ Matrix ActivateOmp(const Matrix& m, ActivationFunction func) {
   return matrix;
 }
 
-Matrix DeriveActivateThreads(const Matrix& m, ActivationFunction func) {
-  std::size_t rows = m.size(), cols = m[0].size();
-  Matrix matrix = Matrix(rows, Vector(cols));
-  Threads threads = Threads(std::thread::hardware_concurrency());
-
-  auto job = [&](std::size_t idx) {
-    DeriveActivateElement(matrix, m, idx, func);
-  };
-
-  for (std::size_t idx{0u}; idx < rows; ++idx) {
-    if (threads[idx % threads.size()].joinable()) {
-      threads[idx % threads.size()].join();
-    }
-    threads[idx % threads.size()] = std::move(std::thread{job, idx});
-  }
-  for (auto& thread : threads) {
-    if (thread.joinable()) thread.join();
-  }
-  return matrix;
-}
-
-Matrix DeriveActivateOmp(const Matrix& m, ActivationFunction func) {
+Matrix DeriveActivate(const Matrix& m, ActivationFunction func) {
   Matrix matrix(m.size(), Vector(m[0].size()));
 #pragma omp parallel for
   for (std::size_t i = 0u; i < m.size(); ++i) {
@@ -231,53 +152,49 @@ Matrix DeriveActivateOmp(const Matrix& m, ActivationFunction func) {
   return matrix;
 }
 
-void GetRowFactor(const Matrix& m, Vector& v, const std::size_t i) {
-  v[i] = m[i][0] * m[i][1];
-  for (std::size_t j{1}; j < m[0].size() / 2; ++j) {
-    v[i] += m[i][2 * j] * m[i][2 * j + 1];
-  }
-}
-
-void GetColFactor(const Matrix& m, Vector& v, const std::size_t i) {
-  v[i] = m[0][i] * m[1][i];
-  for (std::size_t j{1}; j < m.size() / 2; ++j) {
-    v[i] += m[2 * j][i] * m[2 * j + 1][i];
-  }
-}
-
-void GetResultMatrix(Matrix& res, const Matrix& m1, const Matrix& m2,
-                     const Vector rf, const Vector cf, const std::size_t i) {
-  for (std::size_t j{0}; j < m2[0].size(); ++j) {
-    res[i][j] = -rf[i] - cf[j];
-    for (std::size_t k{0}; k < m1[0].size() / 2; ++k) {
-      res[i][j] +=
-          (m1[i][2 * k] + m2[2 * k + 1][j]) * (m1[i][2 * k + 1] + m2[2 * k][j]);
+// Compute row-wise factors
+void ComputeRowFactors(const Matrix& m1, Vector& row_factors) {
+  const std::size_t half = m1[0].size() / 2;
+  for (std::size_t i = 0; i < m1.size(); ++i) {
+    double factor = m1[i][0] * m1[i][1];
+    for (std::size_t j = 1; j < half; ++j) {
+      factor += m1[i][2 * j] * m1[i][2 * j + 1];
     }
+    row_factors[i] = factor;
   }
 }
 
-void OddMatrixProcessing(Matrix& res, const Matrix& m1, const Matrix& m2) {
-  if (m1[0].size() / 2 % 2) {
-#pragma omp parallel for
-    for (std::size_t i = 0; i < m1.size(); ++i) {
-      for (std::size_t j = 0; j < m2[0].size(); ++j) {
-        res[i][j] += m1[i][m1[0].size() - 1] * m2[m2.size() - 1][j];
+// Compute column-wise factors
+void ComputeColFactors(const Matrix& m2, Vector& col_factors) {
+  const std::size_t half = m2.size() / 2;
+  for (std::size_t i = 0; i < m2[0].size(); ++i) {
+    double factor = m2[0][i] * m2[1][i];
+    for (std::size_t j = 1; j < half; ++j) {
+      factor += m2[2 * j][i] * m2[2 * j + 1][i];
+    }
+    col_factors[i] = factor;
+  }
+}
+
+// Compute the result matrix
+void ComputeResultMatrix(const Matrix& m1, const Matrix& m2,
+                         const Vector& row_factors, const Vector& col_factors,
+                         Matrix& result_matrix, std::size_t start_row,
+                         std::size_t end_row) {
+  const std::size_t cols_m2 = m2[0].size();
+  const std::size_t half = m1[0].size() / 2;
+  for (std::size_t i = start_row; i < end_row; ++i) {
+    for (std::size_t j = 0; j < cols_m2; ++j) {
+      double dot_product = -row_factors[i] - col_factors[j];
+      for (std::size_t k = 0; k < half; ++k) {
+        dot_product += (m1[i][2 * k] + m2[2 * k + 1][j]) *
+                       (m1[i][2 * k + 1] + m2[2 * k][j]);
       }
+      if (m1[0].size() % 2 != 0) {
+        dot_product += m1[i][m1[0].size() - 1] * m2[m1[0].size() - 1][j];
+      }
+      result_matrix[i][j] = dot_product;
     }
-  }
-}
-
-void ActivateElement(Matrix& res, const Matrix& m, const std::size_t i,
-                     ActivationFunction func) {
-  for (std::size_t j{0}; j < res[0].size(); ++j) {
-    res[i][j] = ApplyActivation(m[i][j], func);
-  }
-}
-
-void DeriveActivateElement(Matrix& res, const Matrix& m, const std::size_t i,
-                           ActivationFunction func) {
-  for (std::size_t j{0}; j < res[0].size(); ++j) {
-    res[i][j] = ApplyDerivativeActivation(m[i][j], func);
   }
 }
 

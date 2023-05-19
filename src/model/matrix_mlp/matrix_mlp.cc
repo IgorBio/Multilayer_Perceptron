@@ -30,8 +30,7 @@ void MatrixMlp::SetInputLayer(const Vector &layer) {
 void MatrixMlp::ForwardPropagation() {
   for (std::size_t i{0u}; i < weights_.size(); ++i) {
     neurons_[i + 1] =
-        Activate(MultiplyWinograd(weights_[i], neurons_[i], parallel_),
-                 parallel_, acivation_);
+        Activate(MultiplyWinograd(weights_[i], neurons_[i]), acivation_);
   }
 }
 
@@ -41,15 +40,15 @@ void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
     output[i][0] = answer[i];
   }
   Matrix errors = Subtraction(neurons_.back(), output);
-  Matrix gradient = DeriveActivate(neurons_.back(), parallel_, acivation_);
-  errors = MultiplyHadamard(errors, gradient, parallel_);
+  Matrix gradient = DeriveActivate(neurons_.back(), acivation_);
+  errors = MultiplyHadamard(errors, gradient);
   UpdateWeights(errors, lr, weights_.size() - 1);
 
   for (int i{static_cast<int>(weights_.size()) - 2}; i >= 0; --i) {
-    gradient = DeriveActivate(neurons_[i + 1], parallel_, acivation_);
+    gradient = DeriveActivate(neurons_[i + 1], acivation_);
     Matrix transposed = Transpose(weights_[i + 1]);
-    errors = MultiplyWinograd(transposed, errors, parallel_);
-    errors = MultiplyHadamard(errors, gradient, parallel_);
+    errors = MultiplyWinograd(transposed, errors);
+    errors = MultiplyHadamard(errors, gradient);
     UpdateWeights(errors, lr, i);
   }
 }
@@ -58,7 +57,7 @@ void MatrixMlp::UpdateWeights(const Matrix &errors, double lr,
                               std::size_t idx) {
   Matrix transposed = Transpose(neurons_[idx]);
   Matrix step = MultiplyNumber(errors, lr);
-  Matrix diff = MultiplyWinograd(step, transposed, parallel_);
+  Matrix diff = MultiplyWinograd(step, transposed);
   weights_[idx] = Subtraction(weights_[idx], diff);
 }
 
@@ -92,10 +91,6 @@ void MatrixMlp::SetWeights(const Vector &weights) {
     }
   }
 }
-
-Parallel MatrixMlp::GetParallel() const { return parallel_; }
-
-void MatrixMlp::SetParallel(Parallel parallel) { parallel_ = parallel; }
 
 ActivationFunction MatrixMlp::GetActivationFunction() const {
   return acivation_;
