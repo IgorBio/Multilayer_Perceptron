@@ -25,7 +25,7 @@ class MatrixMlp {
 
   std::vector<Matrix> weights_;
   std::vector<Matrix> neurons_;
-  Vector biases_;
+  Vector bias_;
   ActivationFunction acivation_ = ActivationFunction::kSigmoid;
 };
 

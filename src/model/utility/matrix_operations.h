@@ -18,16 +18,19 @@ using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
 using Threads = std::vector<std::thread>;
 
+template <typename Op>
+Matrix BinaryOp(const Matrix &, const Matrix &, Op);
+void UnaryOp(const Matrix &, const std::function<double(double)> &, Matrix &);
+Matrix Addition(const Matrix &, const Matrix &);
+Matrix Subtraction(const Matrix &, const Matrix &);
+Matrix MultiplyHadamard(const Matrix &, const Matrix &);
+Matrix MultiplyNumber(const Matrix &, const double);
 void Randomize(Matrix &);
 double RandomWeight();
-
-Matrix Subtraction(const Matrix &, const Matrix &);
 Matrix Transpose(const Matrix &);
-Matrix MultiplyNumber(const Matrix &, const double);
-Matrix MultiplyHadamard(const Matrix &, const Matrix &);
-Matrix MultiplyWinograd(const Matrix &, const Matrix &);
 Matrix Activate(const Matrix &, ActivationFunction);
 Matrix DeriveActivate(const Matrix &, ActivationFunction);
+Matrix MultiplyWinograd(const Matrix &, const Matrix &);
 
 void ComputeRowFactors(const Matrix &, Vector &);
 void ComputeColFactors(const Matrix &, Vector &);

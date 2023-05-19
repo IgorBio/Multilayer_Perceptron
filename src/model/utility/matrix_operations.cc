@@ -2,26 +2,8 @@
 
 namespace s21 {
 
-void Randomize(Matrix& m) {
-  if (m.empty()) {
-    throw std::logic_error("Matrix have inconsistent dimensions");
-  }
-  const std::size_t rows = m.size(), cols = m[0].size();
-#pragma omp parallel for
-  for (std::size_t i = 0; i < rows; ++i) {
-    for (std::size_t j = 0; j < cols; ++j) {
-      m[i][j] = RandomWeight();
-    }
-  }
-}
-
-double RandomWeight() {
-  static std::uniform_real_distribution<double> dist(-1.0, 1.0);
-  static std::mt19937 rng{std::random_device{}()};
-  return dist(rng);
-}
-
-Matrix Subtraction(const Matrix& m1, const Matrix& m2) {
+template <typename Op>
+Matrix BinaryOp(const Matrix& m1, const Matrix& m2, Op op) {
   if (m1.empty() or m2.empty() or m1.size() != m2.size() or
       m1[0].size() != m2[0].size()) {
     throw std::logic_error("Matrices have inconsistent dimensions");
@@ -32,10 +14,63 @@ Matrix Subtraction(const Matrix& m1, const Matrix& m2) {
     const auto &row_m1 = m1[i], &row_m2 = m2[i];
     Vector& row_result = matrix[i];
     for (std::size_t j = 0u; j < row_m1.size(); ++j) {
-      row_result[j] = row_m1[j] - row_m2[j];
+      row_result[j] = op(row_m1[j], row_m2[j]);
     }
   }
 
+  return matrix;
+}
+
+Matrix Addition(const Matrix& m1, const Matrix& m2) {
+  auto add = [](double a, double b) { return a + b; };
+  return BinaryOp(m1, m2, add);
+}
+
+Matrix Subtraction(const Matrix& m1, const Matrix& m2) {
+  auto sub = [](double a, double b) { return a - b; };
+  return BinaryOp(m1, m2, sub);
+}
+
+Matrix MultiplyHadamard(const Matrix& m1, const Matrix& m2) {
+  auto mul = [](double a, double b) { return a * b; };
+  return BinaryOp(m1, m2, mul);
+}
+
+// Helper function to iterate over a matrix and apply an operation to each
+// element
+void UnaryOp(const Matrix& m, const std::function<double(double)>& op,
+             Matrix& matrix) {
+  if (!m.empty()) {
+    const std::size_t rows = m.size(), cols = m[0].size();
+#pragma omp parallel for
+    for (std::size_t i = 0u; i < rows; ++i) {
+      for (std::size_t j = 0u; j < cols; ++j) {
+        matrix[i][j] = op(m[i][j]);
+      }
+    }
+  }
+}
+
+// Randomize a matrix
+void Randomize(Matrix& m) {
+  UnaryOp(
+      m, [](double) { return RandomWeight(); }, m);
+}
+
+double RandomWeight() {
+  static uint64_t x = std::random_device{}();
+  x ^= x >> 12;  // These constants are chosen based on empirical studies
+  x ^= x << 25;
+  x ^= x >> 27;
+  static constexpr double kNorm = 1.0 / UINT64_MAX;   // Normalize to [0,1]
+  return static_cast<double>(x) * kNorm * 2.0 - 1.0;  // Scale to [-1,1]
+}
+
+// Multiply a matrix by a scalar
+Matrix MultiplyNumber(const Matrix& m, const double d) {
+  Matrix matrix(m.size(), Vector(m[0].size()));
+  UnaryOp(
+      m, [d](double x) { return x * d; }, matrix);
   return matrix;
 }
 
@@ -55,39 +90,31 @@ Matrix Transpose(const Matrix& m) {
   return matrix;
 }
 
-Matrix MultiplyNumber(const Matrix& m, const double d) {
-  if (m.empty()) {
-    throw std::logic_error("Matrix have inconsistent dimensions");
-  }
-  const std::size_t rows = m.size(), cols = m[0].size();
-  Matrix matrix(rows, Vector(cols));
-#pragma omp parallel for
-  for (std::size_t i = 0u; i < rows; ++i) {
-    const auto& row = m[i];
-    Vector& row_result = matrix[i];
-    for (std::size_t j = 0u; j < row.size(); ++j) {
-      row_result[j] = row[j] * d;
-    }
-  }
-
+// Apply an activation function to a matrix
+Matrix Activate(const Matrix& m, ActivationFunction func) {
+  Matrix matrix(m.size(), Vector(m[0].size()));
+  UnaryOp(
+      m, [func](double x) { return ApplyActivation(x, func); }, matrix);
   return matrix;
 }
 
-Matrix MultiplyHadamard(const Matrix& m1, const Matrix& m2) {
-  if (m1.empty() or m2.empty() or m1.size() != m2.size() or
-      m1[0].size() != m2[0].size()) {
-    throw std::logic_error("Matrices have inconsistent dimensions");
-  }
-  Matrix matrix(m1.size(), Vector(m1[0].size()));
-#pragma omp parallel for
-  for (std::size_t i = 0u; i < m1.size(); ++i) {
-    const auto &row_m1 = m1[i], &row_m2 = m2[i];
-    Vector& row_result = matrix[i];
-    for (std::size_t j = 0u; j < row_m1.size(); ++j) {
-      row_result[j] = row_m1[j] * row_m2[j];
-    }
-  }
+// Matrix Activate(const Matrix& m, ActivationFunction func) {
+//   Matrix matrix(m.size(), Vector(m[0].size()));
+// #pragma omp parallel for
+//   for (std::size_t i = 0u; i < m.size(); ++i) {
+//     for (std::size_t j = 0u; j < m[0].size(); ++j) {
+//       matrix[i][j] = ApplyActivation(m[i][j], func);
+//     }
+//   }
+//   return matrix;
+// }
 
+// Apply the derivative of an activation function to a matrix
+Matrix DeriveActivate(const Matrix& m, ActivationFunction func) {
+  Matrix matrix(m.size(), Vector(m[0].size()));
+  UnaryOp(
+      m, [func](double x) { return ApplyDerivativeActivation(x, func); },
+      matrix);
   return matrix;
 }
 
@@ -128,28 +155,6 @@ Matrix MultiplyWinograd(const Matrix& m1, const Matrix& m2) {
   }
 
   return result_matrix;
-}
-
-Matrix Activate(const Matrix& m, ActivationFunction func) {
-  Matrix matrix(m.size(), Vector(m[0].size()));
-#pragma omp parallel for
-  for (std::size_t i = 0u; i < m.size(); ++i) {
-    for (std::size_t j = 0u; j < m[0].size(); ++j) {
-      matrix[i][j] = ApplyActivation(m[i][j], func);
-    }
-  }
-  return matrix;
-}
-
-Matrix DeriveActivate(const Matrix& m, ActivationFunction func) {
-  Matrix matrix(m.size(), Vector(m[0].size()));
-#pragma omp parallel for
-  for (std::size_t i = 0u; i < m.size(); ++i) {
-    for (std::size_t j = 0u; j < m[0].size(); ++j) {
-      matrix[i][j] = ApplyDerivativeActivation(m[i][j], func);
-    }
-  }
-  return matrix;
 }
 
 // Compute row-wise factors

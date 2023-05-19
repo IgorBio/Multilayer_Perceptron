@@ -3,7 +3,7 @@
 namespace s21 {
 
 MatrixMlp::MatrixMlp(Topology topology)
-    : neurons_(topology.hidden_layers + 2), biases_{0} {
+    : neurons_(topology.hidden_layers + 2), bias_{0} {
   AddWheights(topology.hidden_layer, topology.input_layer);
 
   for (std::size_t i{0u}; i < topology.hidden_layers - 1; ++i) {
