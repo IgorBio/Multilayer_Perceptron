@@ -43,12 +43,12 @@ void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
     output[i][0] = answer[i];
   }
   Matrix errors = Subtraction(neurons_.back(), output);
-  Matrix gradient = DeriveActivate(neurons_.back(), acivation_);
+  Matrix gradient = ActivateDerivative(neurons_.back(), acivation_);
   errors = MultiplyHadamard(errors, gradient);
   UpdateWeights(errors, lr, weights_.size() - 1);
 
   for (int i{static_cast<int>(weights_.size()) - 2}; i >= 0; --i) {
-    gradient = DeriveActivate(neurons_[i + 1], acivation_);
+    gradient = ActivateDerivative(neurons_[i + 1], acivation_);
     Matrix transposed = Transpose(weights_[i + 1]);
     errors = MultiplyWinograd(transposed, errors);
     errors = MultiplyHadamard(errors, gradient);
@@ -95,11 +95,9 @@ void MatrixMlp::SetWeights(const Vector &weights) {
   }
 }
 
-ActivationFunction MatrixMlp::GetActivationFunction() const {
-  return acivation_;
-}
+activation_func MatrixMlp::GetActivationFunction() const { return acivation_; }
 
-void MatrixMlp::SetActivationFunction(ActivationFunction activation) {
+void MatrixMlp::SetActivationFunction(activation_func activation) {
   acivation_ = activation;
 }
 

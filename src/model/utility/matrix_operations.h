@@ -1,18 +1,14 @@
 #ifndef MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_
 #define MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_
 
-#include <algorithm>
 #include <future>
 #include <random>
 #include <stdexcept>
 #include <thread>
-#include <vector>
 
 #include "activation_functions.h"
 
 namespace s21 {
-
-enum class ActivationFunction;
 
 using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
@@ -27,8 +23,8 @@ Matrix MultiplyNumber(const Matrix &, const double);
 void RandomizeMatrix(Matrix &);
 void RandomizeVector(Vector &);
 Matrix Transpose(const Matrix &);
-Matrix Activate(const Matrix &, ActivationFunction);
-Matrix DeriveActivate(const Matrix &, ActivationFunction);
+Matrix Activate(const Matrix &, activation_func);
+Matrix ActivateDerivative(const Matrix &, activation_derivative);
 Matrix MultiplyWinograd(const Matrix &, const Matrix &);
 
 void ComputeRowFactors(const Matrix &, Vector &);

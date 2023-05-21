@@ -2,6 +2,8 @@
 
 namespace s21 {
 
+Model::Model(ModelType type, Topology topology) {}
+
 void Model::SetWeights(const std::string& filename) {
   try {
     auto data = WeightReader::Read(filename);

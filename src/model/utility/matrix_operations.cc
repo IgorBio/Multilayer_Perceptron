@@ -85,7 +85,7 @@ Matrix Transpose(const Matrix& matrix) {
 }
 
 // Apply an activation function to a matrix
-Matrix Activate(const Matrix& matrix, ActivationFunction func) {
+Matrix Activate(const Matrix& matrix, activation_func func) {
   if (matrix.empty()) {
     throw std::logic_error("Matrix have inconsistent dimensions");
   }
@@ -99,7 +99,7 @@ Matrix Activate(const Matrix& matrix, ActivationFunction func) {
 }
 
 // Apply the derivative of an activation function to a matrix
-Matrix DeriveActivate(const Matrix& matrix, ActivationFunction func) {
+Matrix ActivateDerivative(const Matrix& matrix, activation_derivative func) {
   if (matrix.empty()) {
     throw std::logic_error("Matrix have inconsistent dimensions");
   }
@@ -108,7 +108,7 @@ Matrix DeriveActivate(const Matrix& matrix, ActivationFunction func) {
   for (std::size_t i = 0; i < matrix.size(); ++i) {
     std::transform(
         matrix[i].begin(), matrix[i].end(), result[i].begin(),
-        [&](const auto& x) { return ApplyDerivativeActivation(x, func); });
+        [&](const auto& x) { return ApplyActivationDerivative(x, func); });
   }
   return result;
 }

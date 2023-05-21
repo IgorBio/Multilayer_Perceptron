@@ -99,4 +99,4 @@ my:
 	@g++ ./model/my.cc ./model/utility/matrix_operations.cc $(OPENMP)  && ./a.out
 
 speed:
-	@g++ ./tests/speed_matrix_ops.cc ./model/utility/matrix_operations.cc $(OPENMP)  && ./a.out
+	@$(CC) ./tests/speed_matrix_ops.cc ./model/utility/matrix_operations.cc $(OPENMP)  && ./a.out

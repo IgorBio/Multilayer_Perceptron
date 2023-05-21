@@ -153,11 +153,11 @@ TEST(Activate, CorrectCase) {
                      0.982014, 0.993307, 0.997527},
                     {0.999665, 0.999877, 0.731059, 0.880797, 0.952574, 0.982014,
                      0.993307, 0.997527, 0.999089}};
-  s21::Matrix m = s21::Activate(m1, s21::ActivationFunction::kSigmoid);
+  s21::Matrix m = s21::Activate(m1, s21::sigmoid);
   EXPECT_TRUE(IsEqualMatrices(m, m2));
 }
 
-TEST(DeriveActivate, CorrectCase) {
+TEST(ActivateDerivative, CorrectCase) {
   s21::Matrix m1 = {{1, 2, 3, 4, 5, 6, 7, 8, 9}, {2, 3, 4, 5, 6, 7, 8, 9, 1},
                     {3, 4, 5, 6, 7, 8, 9, 1, 2}, {4, 5, 6, 7, 8, 9, 1, 2, 3},
                     {5, 6, 7, 8, 9, 1, 2, 3, 4}, {6, 7, 8, 9, 1, 2, 3, 4, 5},
@@ -170,6 +170,6 @@ TEST(DeriveActivate, CorrectCase) {
                     {-30, -42, -56, -72, 0, -2, -6, -12, -20},
                     {-42, -56, -72, 0, -2, -6, -12, -20, -30},
                     {-56, -72, 0, -2, -6, -12, -20, -30, -42}};
-  s21::Matrix m = s21::DeriveActivate(m1, s21::ActivationFunction::kSigmoid);
+  s21::Matrix m = s21::ActivateDerivative(m1, s21::sigmoid_derivative);
   EXPECT_TRUE(IsEqualMatrices(m, m2));
 }

@@ -60,16 +60,15 @@ int main() {
 
   auto start = std::chrono::steady_clock::now();
 
-  s21::RandomizeMatrix(m1);
+  // s21::RandomizeMatrix(m1);
   // s21::Matrix res = s21::Addition(m1, m2);
   // s21::Matrix res = s21::Subtraction(m1, m2);
   // s21::Matrix res = s21::MultiplyNumber(m1, d);
   // s21::Matrix res = s21::MultiplyHadamard(m1, m2);
   // s21::Matrix res = s21::MultiplyWinograd(m1, m2);
   // s21::Matrix res = s21::Transpose(m1);
-  // s21::Matrix res = s21::Activate(m1, s21::ActivationFunction::kSigmoid);
-  // s21::Matrix res = s21::DeriveActivate(m1,
-  // s21::ActivationFunction::kSigmoid);
+  s21::Matrix res = s21::Activate(m1, s21::sigmoid);
+  // s21::Matrix res = s21::ActivateDerivative(m1, s21::sigmoid_derivative);
 
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed = end - start;

@@ -56,8 +56,8 @@ int main() {
   for (int i = 0; i < 100; ++i) s21::RandomizeMatrix(m1);
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed = end - start;
-  std::cout << "   RandomizeMatrix matrix: "
-            << std::to_string(elapsed.count() / 100) << " sec"
+  std::cout << "   Randomize matrix: " << std::to_string(elapsed.count() / 100)
+            << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i) s21::Matrix res = s21::Addition(m1, m2);
@@ -103,7 +103,7 @@ int main() {
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i)
-    s21::Matrix res = s21::Activate(m1, s21::ActivationFunction::kSigmoid);
+    s21::Matrix res = s21::Activate(m1, s21::sigmoid);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
   std::cout << "   Activate matrix: " << std::to_string(elapsed.count() / 100)
@@ -111,11 +111,10 @@ int main() {
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i)
-    s21::Matrix res =
-        s21::DeriveActivate(m1, s21::ActivationFunction::kSigmoid);
+    s21::Matrix res = s21::ActivateDerivative(m1, s21::sigmoid_derivative);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Derive Activate matrix: "
+  std::cout << "   Activate Derivative matrix: "
             << std::to_string(elapsed.count() / 100) << " sec"
             << "\n\n";
   std::cout << GetColor(Color::kCyan) << Align(" ") << GetColor(Color::kEnd)

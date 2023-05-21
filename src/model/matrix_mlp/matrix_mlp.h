@@ -16,8 +16,8 @@ class MatrixMlp {
   Vector GetOutput() const;
   Vector GetWeights() const;
   void SetWeights(const Vector &);
-  ActivationFunction GetActivationFunction() const;
-  void SetActivationFunction(ActivationFunction);
+  activation_func GetActivationFunction() const;
+  void SetActivationFunction(activation_func);
 
  private:
   void AddWheights(std::size_t, std::size_t);
@@ -26,7 +26,7 @@ class MatrixMlp {
   std::vector<Matrix> weights_;
   std::vector<Matrix> neurons_;
   Vector bias_;
-  ActivationFunction acivation_ = ActivationFunction::kSigmoid;
+  activation_func acivation_ = sigmoid;
 };
 
 }  // namespace s21
