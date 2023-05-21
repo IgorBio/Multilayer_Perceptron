@@ -2,19 +2,7 @@
 
 namespace s21 {
 
-void Model::SetConfiguration(const Config& config) {
-  if (config.GetModelType() != config_.GetModelType() and mlp_) {
-    auto weights = mlp_->GetWeights();
-    mlp_ = std::make_unique<MLP>(config.GetModelType(), mlp_->GetSettings());
-    mlp_->SetWeights(weights);
-  }
-  config_ = config;
-}
-
-void Model::SetWeights(
-    const std::string& filename,
-    std::function<void(Topology, std::size_t, std::size_t)> success_callback,
-    std::function<void(const std::string&)> error_callback) {
+void Model::SetWeights(const std::string& filename) {
   try {
     auto data = WeightReader::Read(filename);
 
@@ -22,7 +10,7 @@ void Model::SetWeights(
     mlp_->SetWeights(data.weights);
 
     if (success_callback)
-      success_callback(mlp_->GetSettings(), data.epoch, data.accuracy);
+      success_callback(mlp_->GetTopology(), data.epoch, data.accuracy);
   } catch (const std::runtime_error& e) {
     if (error_callback) error_callback(e.what());
   }
@@ -190,19 +178,9 @@ void Model::TrainCrossValidation(
   th.detach();
 }
 
-char Model::AnalyzeRawImage(const std::vector<double>& data) {
-  char letter = 0;
-  if (IsNetworkCreated()) {
-    auto image = Image(data);
-    image.NormalizeData();
-    letter = static_cast<char>(Predict(image).first);
-  }
-  return static_cast<char>(letter) + 'A';
-}
-
-void Model::NormalizeData(std::list<Image>* images) {
+void Model::Normalize(std::vector<Image>* images) {
   std::for_each(images->begin(), images->end(),
-                [](Image& image) -> void { image.NormalizeData(); });
+                [](Image& image) -> void { image.Normalize(); });
 }
 
 }  // namespace s21

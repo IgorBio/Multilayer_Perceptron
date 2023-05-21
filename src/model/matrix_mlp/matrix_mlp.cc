@@ -3,7 +3,9 @@
 namespace s21 {
 
 MatrixMlp::MatrixMlp(Topology topology)
-    : neurons_(topology.hidden_layers + 2), bias_{0} {
+    : neurons_(topology.hidden_layers + 2),
+      bias_(topology.hidden_layers * topology.hidden_layer +
+            topology.output_layer) {
   AddWheights(topology.hidden_layer, topology.input_layer);
 
   for (std::size_t i{0u}; i < topology.hidden_layers - 1; ++i) {
@@ -11,11 +13,12 @@ MatrixMlp::MatrixMlp(Topology topology)
   }
 
   AddWheights(topology.output_layer, topology.hidden_layer);
+  RandomizeVector(bias_);
 }
 
 void MatrixMlp::AddWheights(std::size_t rows, std::size_t cols) {
   Matrix wheights(rows, Vector(cols));
-  Randomize(wheights);
+  RandomizeMatrix(wheights);
   weights_.push_back(wheights);
 }
 

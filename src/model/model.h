@@ -8,82 +8,50 @@
 #include <thread>
 
 // #include "neural_network/io/weight_reader.h"
-#include "mlp.h"
-// #include "reader/csv_reader.h"
+#include "./io/emnist_parser.h"
+#include "./matrix_mlp/matrix_mlp.h"
 
 namespace s21 {
 
 class Model {
  public:
-  Config GetConfiguration() const { return config_; }
-  void SetConfiguration(const Config& config);
+  Model(ModelType type, Topology topology);
 
-  const Topology& GetSettings() const { return mlp_->GetSettings(); }
+  const Config& GetConfig() const { return config_; }
+  void SetConfig(const Config& config) { config_ = config; }
 
-  std::vector<double> GetWeights() const { return mlp_->GetWeights(); }
+  const ModelType& GetType() const { return type_; }
+  void SetType(const ModelType& type) { type_ = type; }
 
-  void SetWeights(
-      const std::string& filename,
-      std::function<void(Topology, std::size_t, std::size_t)> success_callback =
-          nullptr,
-      std::function<void(const std::string&)> error_callback = nullptr);
+  const Topology& GetTopology() const { return topology_; }
+  void SetTopology(const Topology& topology) { topology_ = topology; }
 
-  void SetTrainDataset(
-      const std::string& filename,
-      std::function<void(std::string, std::size_t)> success_callback = nullptr,
-      std::function<void(const std::string&)> error_callback = nullptr);
+  Vector& GetWeights() const;
+  void SetWeights(const Vector& weights);
+  void SetWeights(const std::string& filename);
 
-  void SetTestDataset(
-      const std::string& filename,
-      std::function<void(std::string, std::size_t)> success_callback = nullptr,
-      std::function<void(const std::string&)> error_callback = nullptr);
+  void SetTrainDataset(const std::string& filename);
+  void SetTestDataset(const std::string& filename);
 
-  bool IsNetworkCreated() { return mlp_ != nullptr; }
-
-  void Train(
-      std::function<void()> start_callback = nullptr,
-      std::function<void(std::size_t)> epoch_progress_callback = nullptr,
-      std::function<void(std::size_t)> epoch_end_callback = nullptr,
-      std::function<void()> test_start_callback = nullptr,
-      std::function<void(std::size_t)> test_progress_callback = nullptr,
-      std::function<void(Metrics, std::size_t)> test_end_callback = nullptr,
-      std::function<void()> end_callback = nullptr);
-
+  void Train();
   void StopTrain();
 
-  void Test(double part, std::function<void()> start_callback = nullptr,
-            std::function<void(std::size_t)> progress_callback = nullptr,
-            std::function<void(Metrics)> end_callback = nullptr);
-
+  void Test();
   void StopTest();
 
-  void TrainCrossValidation(
-      std::size_t epochs, std::size_t k,
-      std::function<void()> start_callback = nullptr,
-      std::function<void(std::size_t)> progress_callback = nullptr,
-      std::function<void(Metrics)> end_callback = nullptr);
-
-  std::pair<int, double> Predict(const Image& image) {
-    return mlp_->Predict(image);
-  }
-
-  char AnalyzeRawImage(const std::vector<double>& data);
+  void TrainCrossValidation();
 
  private:
-  void NormalizeData(std::list<Image>* images);
+  void Normalize(std::vector<Image>* images);
 
-  std::unique_ptr<BaseFileReader> reader_ = std::make_unique<CsvReader>();
-
-  std::string train_dataset_filename_;
-  std::list<Image> train_dataset_;
-
-  std::string test_dataset_filename_;
-  std::list<Image> test_dataset_;
-
+ private:
   Config config_;
-  std::unique_ptr<MLP> mlp_;
-  std::atomic_bool train_exit_flag_;
-  std::atomic_bool test_exit_flag_;
+  Topology topology_;
+  ModelType type_;
+  std::unique_ptr<MatrixMlp> m_mlp_;
+  std::unique_ptr<EmnistParser> parser_ = std::make_unique<EmnistParser>();
+  std::vector<Image> train_;
+  std::vector<Image> test_;
 };
 
 }  // namespace s21

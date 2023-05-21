@@ -18,7 +18,7 @@ struct Metrics {
 struct Topology {
   std::size_t hidden_layers = 2u;
   std::size_t input_layer = 784u;
-  std::size_t hidden_layer = 1000u;
+  std::size_t hidden_layer = 240u;
   std::size_t output_layer = 26u;
 };
 
@@ -55,7 +55,7 @@ class Config {
   std::size_t k_folds_ = 1u;
   std::size_t epochs_ = 5u;
   double learning_rate_ = 0.1;
-  double activation_threshold = 0.5;
+  double activation_threshold_ = 0.5;
 };
 
 }  // namespace s21

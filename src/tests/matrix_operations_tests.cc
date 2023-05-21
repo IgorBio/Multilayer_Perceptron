@@ -23,9 +23,9 @@ bool IsEqualMatrices(const s21::Matrix& m1, const s21::Matrix& m2) {
   return true;
 }
 
-TEST(Randomize, CorrectCase) {
+TEST(RandomizeMatrix, CorrectCase) {
   s21::Matrix m = s21::Matrix(1000, s21::Vector(1000));
-  EXPECT_NO_THROW(s21::Randomize(m));
+  EXPECT_NO_THROW(s21::RandomizeMatrix(m));
 }
 
 TEST(Addition, CorrectCase) {

@@ -45,8 +45,8 @@ int main() {
 
   // s21::Matrix m1 = s21::Matrix(1000, s21::Vector(1000));
   // s21::Matrix m2 = s21::Matrix(1000, s21::Vector(1000));
-  // s21::Randomize(m1);
-  // s21::Randomize(m2);
+  // s21::RandomizeMatrix(m1);
+  // s21::RandomizeMatrix(m2);
 
   // s21::Matrix m1 = {{1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
   // s21::Matrix m2 = {{-1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
@@ -54,20 +54,22 @@ int main() {
   double d = 5;
   // s21::Matrix m1 = s21::Matrix(10, s21::Vector(10));
   s21::Matrix m1 = RandomMatrixStandart(1000, 1000);
-  // s21::Matrix m2 = RandomMatrixStandart(1000, 1000);
+  s21::Matrix m2 = RandomMatrixStandart(1000, 1000);
 
   // s21::Matrix res = s21::Matrix(10, s21::Vector(10));
 
   auto start = std::chrono::steady_clock::now();
 
-  // s21::Randomize(m1);
+  s21::RandomizeMatrix(m1);
+  // s21::Matrix res = s21::Addition(m1, m2);
   // s21::Matrix res = s21::Subtraction(m1, m2);
-  // s21::Matrix res = s21::Transpose(m1);
   // s21::Matrix res = s21::MultiplyNumber(m1, d);
   // s21::Matrix res = s21::MultiplyHadamard(m1, m2);
   // s21::Matrix res = s21::MultiplyWinograd(m1, m2);
   // s21::Matrix res = s21::Transpose(m1);
-  s21::Matrix res = s21::Activate(m1, s21::ActivationFunction::kSigmoid);
+  // s21::Matrix res = s21::Activate(m1, s21::ActivationFunction::kSigmoid);
+  // s21::Matrix res = s21::DeriveActivate(m1,
+  // s21::ActivationFunction::kSigmoid);
 
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed = end - start;

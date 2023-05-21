@@ -20,13 +20,12 @@ using Threads = std::vector<std::thread>;
 
 template <typename Op>
 Matrix BinaryOp(const Matrix &, const Matrix &, Op);
-void UnaryOp(const Matrix &, const std::function<double(double)> &, Matrix &);
 Matrix Addition(const Matrix &, const Matrix &);
 Matrix Subtraction(const Matrix &, const Matrix &);
 Matrix MultiplyHadamard(const Matrix &, const Matrix &);
 Matrix MultiplyNumber(const Matrix &, const double);
-void Randomize(Matrix &);
-double RandomWeight();
+void RandomizeMatrix(Matrix &);
+void RandomizeVector(Vector &);
 Matrix Transpose(const Matrix &);
 Matrix Activate(const Matrix &, ActivationFunction);
 Matrix DeriveActivate(const Matrix &, ActivationFunction);
