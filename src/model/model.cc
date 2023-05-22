@@ -2,7 +2,8 @@
 
 namespace s21 {
 
-Model::Model(ModelType type, Topology topology) {}
+Model::Model(ModelType type, Topology topology)
+    : type_{type}, topology_{topology} {}
 
 void Model::SetWeights(const std::string& filename) {
   try {

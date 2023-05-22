@@ -39,8 +39,8 @@ Matrix MultiplyHadamard(const Matrix& m1, const Matrix& m2) {
 // Randomize a matrix
 void RandomizeMatrix(Matrix& matrix) {
 #pragma omp parallel for
-  for (std::size_t i = 0; i < matrix.size(); ++i) {
-    RandomizeVector(matrix[i]);
+  for (auto& vector : matrix) {
+    RandomizeVector(vector);
   }
 }
 
@@ -196,6 +196,22 @@ void ComputeResultMatrix(const Matrix& m1, const Matrix& m2,
       result_matrix[i][j] = dot_product;
     }
   }
+}
+
+Matrix operator+(const Matrix& m1, const Matrix& m2) {
+  return Addition(m1, m2);
+}
+
+Matrix operator-(const Matrix& m1, const Matrix& m2) {
+  return Subtraction(m1, m2);
+}
+
+Matrix operator*(const Matrix& m1, const Matrix& m2) {
+  return MultiplyWinograd(m1, m2);
+}
+
+Matrix operator*(const Matrix& m1, const double d) {
+  return MultiplyNumber(m1, d);
 }
 
 }  // namespace s21

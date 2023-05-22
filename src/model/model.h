@@ -15,7 +15,7 @@ namespace s21 {
 
 class Model {
  public:
-  Model(ModelType type, Topology topology);
+  explicit Model(ModelType type, Topology topology);
 
   const Config& GetConfig() const { return config_; }
   void SetConfig(const Config& config) { config_ = config; }

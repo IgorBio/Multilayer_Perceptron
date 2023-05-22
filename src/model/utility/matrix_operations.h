@@ -1,6 +1,7 @@
 #ifndef MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_
 #define MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_
 
+#include <algorithm>
 #include <future>
 #include <random>
 #include <stdexcept>
@@ -31,6 +32,11 @@ void ComputeRowFactors(const Matrix &, Vector &);
 void ComputeColFactors(const Matrix &, Vector &);
 void ComputeResultMatrix(const Matrix &, const Matrix &, const Vector &,
                          const Vector &, Matrix &, std::size_t, std::size_t);
+
+Matrix operator+(const Matrix &, const Matrix &);
+Matrix operator-(const Matrix &, const Matrix &);
+Matrix operator*(const Matrix &, const Matrix &);
+Matrix operator*(const Matrix &, const double);
 }  // namespace s21
 
 #endif  // MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_

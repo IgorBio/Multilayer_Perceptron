@@ -2,95 +2,93 @@
 
 namespace s21 {
 
-MatrixMlp::MatrixMlp(Topology topology)
-    : neurons_(topology.hidden_layers + 2),
-      bias_(topology.hidden_layers * topology.hidden_layer +
-            topology.output_layer) {
-  AddWheights(topology.hidden_layer, topology.input_layer);
+MatrixMlp::MatrixMlp(Topology topology) : neurons_(topology.hidden_layers + 2) {
+  AddLayer(topology.input_layer, topology.hidden_layer);
 
-  for (std::size_t i{0u}; i < topology.hidden_layers - 1; ++i) {
-    AddWheights(topology.hidden_layer, topology.hidden_layer);
+  for (std::size_t i{1u}; i < topology.hidden_layers; ++i) {
+    AddLayer(topology.hidden_layer, topology.hidden_layer);
   }
 
-  AddWheights(topology.output_layer, topology.hidden_layer);
-  RandomizeVector(bias_);
+  AddLayer(topology.hidden_layer, topology.output_layer);
 }
 
-void MatrixMlp::AddWheights(std::size_t rows, std::size_t cols) {
-  Matrix wheights(rows, Vector(cols));
-  RandomizeMatrix(wheights);
-  weights_.push_back(wheights);
+void MatrixMlp::AddLayer(std::size_t rows, std::size_t cols) {
+  weights_.emplace_back(rows, Vector(cols));
+  RandomizeMatrix(weights_.back());
+  bias_.emplace_back(1, Vector(cols, 0.0));
 }
 
-void MatrixMlp::SetInputLayer(const Vector &layer) {
-  Matrix input = Matrix(layer.size(), Vector(1));
-  for (std::size_t i{0u}; i < layer.size(); ++i) {
-    input[i][0] = layer[i];
-  }
-  neurons_.front() = std::move(input);
+void MatrixMlp::SetInputLayer(const Vector &input) {
+  neurons_[0] = Matrix(1, input);
 }
 
 void MatrixMlp::ForwardPropagation() {
   for (std::size_t i{0u}; i < weights_.size(); ++i) {
     neurons_[i + 1] =
-        Activate(MultiplyWinograd(weights_[i], neurons_[i]), acivation_);
+        Activate(neurons_[i] * weights_[i] + bias_[i], acivation_);
   }
 }
 
 void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
-  Matrix output = Matrix(answer.size(), Vector(1));
-  for (std::size_t i{0u}; i < answer.size(); ++i) {
-    output[i][0] = answer[i];
-  }
-  Matrix errors = Subtraction(neurons_.back(), output);
-  Matrix gradient = ActivateDerivative(neurons_.back(), acivation_);
-  errors = MultiplyHadamard(errors, gradient);
+  Matrix errors =
+      MultiplyHadamard(neurons_.back() - Matrix(1, answer),
+                       ActivateDerivative(neurons_.back(), acivation_));
   UpdateWeights(errors, lr, weights_.size() - 1);
 
-  for (int i{static_cast<int>(weights_.size()) - 2}; i >= 0; --i) {
-    gradient = ActivateDerivative(neurons_[i + 1], acivation_);
-    Matrix transposed = Transpose(weights_[i + 1]);
-    errors = MultiplyWinograd(transposed, errors);
-    errors = MultiplyHadamard(errors, gradient);
-    UpdateWeights(errors, lr, i);
+  for (std::size_t i{neurons_.size() - 2}; i > 0; --i) {
+    errors = MultiplyHadamard(errors * Transpose(weights_[i]),
+                              ActivateDerivative(neurons_[i], acivation_));
+    UpdateWeights(errors, lr, i - 1);
   }
 }
 
 void MatrixMlp::UpdateWeights(const Matrix &errors, double lr,
                               std::size_t idx) {
-  Matrix transposed = Transpose(neurons_[idx]);
-  Matrix step = MultiplyNumber(errors, lr);
-  Matrix diff = MultiplyWinograd(step, transposed);
-  weights_[idx] = Subtraction(weights_[idx], diff);
+  weights_[idx] = weights_[idx] - (Transpose(neurons_[idx - 1]) * errors) * lr;
+}
+
+double MatrixMlp::CalculateLoss(const Matrix &inputs, const Matrix &labels) {
+  double total_loss{0.0};
+  for (std::size_t i{0u}; i < inputs.size(); ++i) {
+    SetInputLayer(inputs[i]);
+    ForwardPropagation();
+    Vector output = GetOutput();
+    double loss{0.0};
+    for (std::size_t j{0u}; j < output.size(); ++j) {
+      loss += std::pow(output[j] - labels[i][j], 2);
+    }
+    total_loss += loss;
+  }
+  return total_loss / inputs.size();
+}
+
+Vector MatrixMlp::Predict(const Vector &input) {
+  SetInputLayer(input);
+  ForwardPropagation();
+  return GetOutput();
 }
 
 Vector MatrixMlp::GetOutput() const {
-  Vector output(neurons_.back().size(), 0);
-  for (std::size_t i{0u}; i < neurons_.back().size(); ++i) {
-    output[i] = neurons_.back()[i][0];
-  }
-  return output;
+  const auto &output_matrix = neurons_.back();
+  return Vector{output_matrix.front().cbegin(), output_matrix.front().cend()};
 }
 
 Vector MatrixMlp::GetWeights() const {
   Vector weights;
   for (auto &matrix : weights_) {
-    for (std::size_t row{0u}; row < matrix.size(); ++row) {
-      for (std::size_t col{0u}; col < matrix[0].size(); ++col) {
-        weights.push_back(matrix[row][col]);
-      }
+    for (const auto &row : matrix) {
+      weights.insert(weights.end(), row.begin(), row.end());
     }
   }
   return weights;
 }
 
 void MatrixMlp::SetWeights(const Vector &weights) {
-  std::size_t i{0u};
+  auto it = weights.cbegin();
   for (auto &matrix : weights_) {
-    for (std::size_t row{0u}; row < matrix.size(); ++row) {
-      for (std::size_t col{0u}; col < matrix[0].size(); ++col) {
-        matrix[row][col] = weights[++i];
-      }
+    for (auto &row : matrix) {
+      std::copy(it, it + row.size(), row.begin());
+      it += row.size();
     }
   }
 }

@@ -48,14 +48,14 @@ class Config {
   void SetLearningRate(double rate) { learning_rate_ = rate; }
 
  private:
-  ModelType model_type_ = ModelType::kMatrix;
-  std::size_t hidden_layers_ = 2u;
-  TrainType train_type_ = TrainType::kTrain;
-  double test_sample_ = 1.0;
-  std::size_t k_folds_ = 1u;
-  std::size_t epochs_ = 5u;
-  double learning_rate_ = 0.1;
-  double activation_threshold_ = 0.5;
+  ModelType model_type_{ModelType::kMatrix};
+  std::size_t hidden_layers_{2u};
+  TrainType train_type_{TrainType::kTrain};
+  double test_sample_{1.0};
+  std::size_t k_folds_{3u};
+  std::size_t epochs_{5u};
+  double learning_rate_{0.1};
+  double activation_threshold_{0.5};
 };
 
 }  // namespace s21
