@@ -15,7 +15,7 @@ MatrixMlp::MatrixMlp(Topology topology) : neurons_(topology.hidden_layers + 2) {
 void MatrixMlp::AddLayer(std::size_t rows, std::size_t cols) {
   weights_.emplace_back(rows, Vector(cols));
   RandomizeMatrix(weights_.back());
-  bias_.emplace_back(1, Vector(cols, 0.0));
+  bias_.emplace_back(1, Vector(cols, RandomWeight()));
 }
 
 void MatrixMlp::SetInputLayer(const Vector &input) {

@@ -6,6 +6,7 @@
 #include <random>
 #include <stdexcept>
 #include <thread>
+#include <vector>
 
 #include "activation_functions.h"
 
@@ -23,6 +24,7 @@ Matrix MultiplyHadamard(const Matrix &, const Matrix &);
 Matrix MultiplyNumber(const Matrix &, const double);
 void RandomizeMatrix(Matrix &);
 void RandomizeVector(Vector &);
+inline double RandomWeight();
 Matrix Transpose(const Matrix &);
 Matrix Activate(const Matrix &, activation_func);
 Matrix ActivateDerivative(const Matrix &, activation_derivative);

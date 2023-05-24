@@ -46,12 +46,18 @@ void RandomizeMatrix(Matrix& matrix) {
 
 // Randomize a vector
 void RandomizeVector(Vector& vector) {
-  std::mt19937_64 rng(std::random_device{}());
+  std::mt19937_64 gen(std::random_device{}());
   std::uniform_real_distribution<double> dist(-1.0, 1.0);
 #pragma omp parallel for
   for (double& value : vector) {
-    value = dist(rng);
+    value = dist(gen);
   }
+}
+
+inline double RandomWeight() {
+  static std::mt19937_64 gen(std::random_device{}());
+  static std::uniform_real_distribution<double> dist(-1.0, 1.0);
+  return dist(gen);
 }
 
 // Multiply a matrix by a scalar
