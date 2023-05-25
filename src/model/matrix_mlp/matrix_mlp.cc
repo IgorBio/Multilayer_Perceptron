@@ -24,20 +24,20 @@ void MatrixMlp::SetInputLayer(const Vector &input) {
 
 void MatrixMlp::ForwardPropagation() {
   for (std::size_t i{0u}; i < weights_.size(); ++i) {
-    neurons_[i + 1] =
-        Activate(neurons_[i] * weights_[i] + bias_[i], acivation_);
+    neurons_[i + 1] = Activate(neurons_[i] * weights_[i] + bias_[i], sigmoid);
   }
 }
 
-void MatrixMlp::BackPropagation(const Vector &answer, double lr) {
+void MatrixMlp::BackPropagation(const Vector &expected, double lr) {
   Matrix errors =
-      MultiplyHadamard(neurons_.back() - Matrix(1, answer),
-                       ActivateDerivative(neurons_.back(), acivation_));
+      MultiplyHadamard(neurons_.back() - Matrix(1, expected),
+                       ActivateDerivative(neurons_.back(), sigmoid_derivative));
   UpdateWeights(errors, lr, weights_.size() - 1);
 
   for (std::size_t i{neurons_.size() - 2}; i > 0; --i) {
-    errors = MultiplyHadamard(errors * Transpose(weights_[i]),
-                              ActivateDerivative(neurons_[i], acivation_));
+    errors =
+        MultiplyHadamard(errors * Transpose(weights_[i]),
+                         ActivateDerivative(neurons_[i], sigmoid_derivative));
     UpdateWeights(errors, lr, i - 1);
   }
 }
@@ -47,25 +47,25 @@ void MatrixMlp::UpdateWeights(const Matrix &errors, double lr,
   weights_[idx] = weights_[idx] - (Transpose(neurons_[idx - 1]) * errors) * lr;
 }
 
-double MatrixMlp::CalculateLoss(const Matrix &inputs, const Matrix &labels) {
+double MatrixMlp::CalculateLoss(const Matrix &inputs,
+                                const Matrix &expected_outputs) {
   double total_loss{0.0};
+#pragma omp parallel for reduction(+ : total_loss)
   for (std::size_t i{0u}; i < inputs.size(); ++i) {
     SetInputLayer(inputs[i]);
     ForwardPropagation();
     Vector output = GetOutput();
     double loss{0.0};
     for (std::size_t j{0u}; j < output.size(); ++j) {
-      loss += std::pow(output[j] - labels[i][j], 2);
+      loss += std::pow(output[j] - expected_outputs[i][j], 2);
     }
     total_loss += loss;
   }
   return total_loss / inputs.size();
 }
 
-Vector MatrixMlp::Predict(const Vector &input) {
-  SetInputLayer(input);
-  ForwardPropagation();
-  return GetOutput();
+Vector MatrixMlp::Predict(const Vector &input) const {
+  // ToDo
 }
 
 Vector MatrixMlp::GetOutput() const {
@@ -91,12 +91,6 @@ void MatrixMlp::SetWeights(const Vector &weights) {
       it += row.size();
     }
   }
-}
-
-activation_func MatrixMlp::GetActivationFunction() const { return acivation_; }
-
-void MatrixMlp::SetActivationFunction(activation_func activation) {
-  acivation_ = activation;
 }
 
 }  // namespace s21

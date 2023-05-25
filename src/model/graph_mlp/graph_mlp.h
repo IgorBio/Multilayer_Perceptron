@@ -13,9 +13,20 @@ class GraphMlp {
  public:
   explicit GraphMlp(Topology);
 
+  void SetInputLayer(const Vector &);
+  void ForwardPropagation();
+  void BackPropagation(const Vector &, double);
+  double CalculateLoss(const Matrix &, const Matrix &);
+  Vector Predict(const Vector &input) const;
+  Vector GetOutput() const;
+  Vector GetWeights() const;
+  void SetWeights(const Vector &);
+
  private:
+  void AddLayer(std::size_t, std::size_t);
+  void UpdateWeights(const Matrix &, double, std::size_t);
+
   Net net_;
-  activation_func acivation_{sigmoid};
 };
 
 }  // namespace s21

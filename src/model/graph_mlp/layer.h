@@ -11,8 +11,6 @@ namespace s21 {
 
 using Neurons = std::vector<std::unique_ptr<Neuron>>;
 
-enum class LayerType { kInput, kHidden, kOutput };
-
 class Layer {
  public:
   explicit Layer(std::size_t input_size, std::size_t output_size)
@@ -22,10 +20,8 @@ class Layer {
     });
   }
 
-  void SetType(LayerType type) { type_ = type; }
-  LayerType GetLayerType() const { return type_; }
-  const Neurons& GetLayer() const { return layer_; }
-  Matrix CalculateError(const Vector& expected) const {
+  Neurons GetLayer() const { return layer_; }
+  Matrix CalculateLoss(const Vector& expected) const {
     Matrix error(layer_.size(), Vector(expected.size()));
 #pragma omp parallel for
     for (std::size_t i{0u}; i < layer_.size(); ++i) {
@@ -45,7 +41,6 @@ class Layer {
   }
 
  private:
-  LayerType type_;
   Neurons layer_;
 };
 

@@ -14,12 +14,10 @@ class MatrixMlp {
   void ForwardPropagation();
   void BackPropagation(const Vector &, double);
   double CalculateLoss(const Matrix &, const Matrix &);
-  Vector Predict(const Vector &input);
+  Vector Predict(const Vector &input) const;
   Vector GetOutput() const;
   Vector GetWeights() const;
   void SetWeights(const Vector &);
-  activation_func GetActivationFunction() const;
-  void SetActivationFunction(activation_func);
 
  private:
   void AddLayer(std::size_t, std::size_t);
@@ -28,7 +26,6 @@ class MatrixMlp {
   std::vector<Matrix> weights_;
   std::vector<Matrix> neurons_;
   std::vector<Matrix> bias_;
-  activation_func acivation_{sigmoid};
 };
 
 }  // namespace s21
