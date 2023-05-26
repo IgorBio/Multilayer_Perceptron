@@ -48,7 +48,8 @@ int main() {
   s21::RandomizeMatrix(m2);
   double d = 0.1;
 
-  std::cout << GetColor(Color::kCyan)
+  std::cout << "\n"
+            << GetColor(Color::kCyan)
             << Align("1000x1000 MATRIX OPERATIONS SPEED TEST")
             << GetColor(Color::kEnd) << "\n\n";
 
@@ -56,49 +57,49 @@ int main() {
   for (int i = 0; i < 100; ++i) s21::RandomizeMatrix(m1);
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed = end - start;
-  std::cout << "   Randomize matrix: " << std::to_string(elapsed.count() / 100)
+  std::cout << "\tRandomize matrix: " << std::to_string(elapsed.count() / 100)
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i) s21::Matrix res = s21::Addition(m1, m2);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Addition matrices: " << std::to_string(elapsed.count() / 100)
+  std::cout << "\tAddition matrices: " << std::to_string(elapsed.count() / 100)
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i) s21::Matrix res = s21::Subtraction(m1, m2);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Subtraction matrices: "
+  std::cout << "\tSubtraction matrices: "
             << std::to_string(elapsed.count() / 100) << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i) s21::Matrix res = s21::MultiplyNumber(m1, d);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Multiply number: " << std::to_string(elapsed.count() / 100)
+  std::cout << "\tMultiply number: " << std::to_string(elapsed.count() / 100)
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i) s21::Matrix res = s21::MultiplyHadamard(m1, m2);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Multiply Hadamard: " << std::to_string(elapsed.count() / 100)
+  std::cout << "\tMultiply Hadamard: " << std::to_string(elapsed.count() / 100)
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
   s21::Matrix res = s21::MultiplyWinograd(m1, m2);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Multiply Winograd: " << std::to_string(elapsed.count())
+  std::cout << "\tMultiply Winograd: " << std::to_string(elapsed.count())
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
   for (int i = 0; i < 100; ++i) s21::Matrix res = s21::Transpose(m1);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Transpose matrix: " << std::to_string(elapsed.count() / 100)
+  std::cout << "\tTranspose matrix: " << std::to_string(elapsed.count() / 100)
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
@@ -106,7 +107,7 @@ int main() {
     s21::Matrix res = s21::Activate(m1, s21::sigmoid);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Activate matrix: " << std::to_string(elapsed.count() / 100)
+  std::cout << "\tActivate matrix: " << std::to_string(elapsed.count() / 100)
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
@@ -114,9 +115,9 @@ int main() {
     s21::Matrix res = s21::ActivateDerivative(m1, s21::sigmoid_derivative);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
-  std::cout << "   Activate Derivative matrix: "
+  std::cout << "\tActivate Derivative matrix: "
             << std::to_string(elapsed.count() / 100) << " sec"
             << "\n\n";
   std::cout << GetColor(Color::kCyan) << Align(" ") << GetColor(Color::kEnd)
-            << "\n";
+            << "\n\n";
 }

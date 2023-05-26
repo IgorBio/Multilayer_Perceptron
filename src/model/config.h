@@ -7,13 +7,13 @@ namespace s21 {
 
 enum class ModelType { kMatrix, kGraph };
 
-// struct Metrics {
-//   double accuracy = 0.0;
-//   double precision = 0.0;
-//   double recall = 0.0;
-//   double f_measure = 0.0;
-//   std::size_t time = 0u;
-// };
+struct Metrics {
+  double accuracy = 0.0;
+  double precision = 0.0;
+  double recall = 0.0;
+  double f_measure = 0.0;
+  std::size_t time = 0u;
+};
 
 struct Topology {
   std::size_t hidden_layers = 2u;

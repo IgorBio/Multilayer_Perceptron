@@ -2,6 +2,7 @@
 #define MLP_MODEL_IO_EMNIST_PARSER_H
 
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -13,10 +14,6 @@ class EmnistParser {
   using Dataset = std::vector<Image>;
 
   Dataset ParseEmnist(const std::string& path);
-
- private:
-  int ParseLabel(const std::string& line, std::size_t in, std::size_t* out);
-  double ParsePixel(const std::string& line, std::size_t in, std::size_t* out);
 };
 }  // namespace s21
 

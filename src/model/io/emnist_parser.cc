@@ -3,48 +3,24 @@
 namespace s21 {
 EmnistParser::Dataset EmnistParser::ParseEmnist(const std::string& path) {
   Dataset dataset;
-  std::ifstream emnist(path);
-  if (emnist.is_open()) {
-    std::string line;
-    while (std::getline(emnist, line)) {
-      Image image;
-      std::size_t idx = 0u;
-      image.SetLabel(ParseLabel(line, idx, &idx));
-      while (idx < line.length()) {
-        image.AddPixel(ParsePixel(line, idx, &idx));
-      }
-      dataset.push_back(image);
+  std::ifstream file(path);
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file: " + path);
+  }
+  std::string line, pixel_str;
+  while (std::getline(file, line)) {
+    Image image;
+    std::istringstream iss(line);
+    std::string token;
+    std::getline(iss, token, ',');
+    image.SetLabel(std::stoi(token));
+    for (std::size_t i{0u}; i < Image::kPixels; ++i) {
+      std::getline(iss, token, ',');
+      image.AddPixel(static_cast<double>(std::stoi(token)) / Image::kMaxPixel);
     }
-    emnist.close();
-  } else {
-    throw std::runtime_error("Incorrect path to emnist");
+    dataset.push_back(image);
   }
   return dataset;
 }
 
-int EmnistParser::ParseLabel(const std::string& line, std::size_t in,
-                             std::size_t* out) {
-  std::size_t pos = 0u;
-  int label;
-  try {
-    label = std::stoi(line.substr(in), &pos);
-  } catch (const std::invalid_argument& e) {
-    throw std::runtime_error("Incorrect emnist format");
-  }
-  *out = in + pos + 1;
-  return label;
-}
-
-double EmnistParser::ParsePixel(const std::string& line, std::size_t in,
-                                std::size_t* out) {
-  std::size_t pos = 0u;
-  double pixel;
-  try {
-    pixel = std::stod(line.substr(in), &pos);
-  } catch (const std::invalid_argument& e) {
-    throw std::runtime_error("Incorrect emnist format");
-  }
-  *out = in + pos + 1;
-  return pixel;
-}
 }  // namespace s21

@@ -10,10 +10,10 @@ class Image {
  public:
   using Pixels = std::vector<double>;
 
-  constexpr static const double kMaxPixel = 255.0;
-  static const int kPixels = 784;
+  static constexpr const double kMaxPixel = 255.0;
+  static constexpr const int kPixels = 784;
 
-  Image() : label_(0) { pixels_.reserve(kPixels); }
+  Image() : label_{0} { pixels_.reserve(kPixels); }
   explicit Image(const Pixels& pixels) : label_(-1), pixels_(pixels) {}
 
   int GetLabel() const { return label_; }

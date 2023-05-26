@@ -3,7 +3,6 @@
 #include <random>
 #include <vector>
 
-// #include "io/emnist_parser.h"
 #include "utility/matrix_operations.h"
 
 s21::Matrix RandomMatrixStandart(int rows, int cols);
@@ -33,16 +32,6 @@ void PrintMatrix(s21::Matrix m) {
 }
 
 int main() {
-  // s21::EmnistParser parser;
-  // s21::EmnistParser::Dataset dataset = parser.ParseEmnist(
-  //     "/home/igor/Projects/CPP7_MLP-0-master/src/resources/emnist-letters/"
-  //     "emnist-letters-train.csv");
-  // std::cout << dataset[0].GetLabel() << std::endl;
-  //   for (auto pixel : dataset[0].GetPixels()) {
-  //     std::cout << pixel;
-  //   }
-  // std::cout << dataset[0].GetPixels().size() << std::endl;
-
   // s21::Matrix m1 = s21::Matrix(1000, s21::Vector(1000));
   // s21::Matrix m2 = s21::Matrix(1000, s21::Vector(1000));
   // s21::RandomizeMatrix(m1);
@@ -51,14 +40,14 @@ int main() {
   // s21::Matrix m1 = {{1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
   // s21::Matrix m2 = {{-1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
   // s21::Matrix m2 = {{1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {5, 6, 7}, {6, 7, 8}};
-  double d = 5;
+  // double d = 5;
   // s21::Matrix m1 = s21::Matrix(10, s21::Vector(10));
-  s21::Matrix m1 = RandomMatrixStandart(1000, 1000);
-  s21::Matrix m2 = RandomMatrixStandart(1000, 1000);
+  // s21::Matrix m1 = RandomMatrixStandart(1000, 1000);
+  // s21::Matrix m2 = RandomMatrixStandart(1000, 1000);
 
   // s21::Matrix res = s21::Matrix(10, s21::Vector(10));
 
-  auto start = std::chrono::steady_clock::now();
+  // auto start = std::chrono::steady_clock::now();
 
   // s21::RandomizeMatrix(m1);
   // s21::Matrix res = s21::Addition(m1, m2);
@@ -67,13 +56,13 @@ int main() {
   // s21::Matrix res = s21::MultiplyHadamard(m1, m2);
   // s21::Matrix res = s21::MultiplyWinograd(m1, m2);
   // s21::Matrix res = s21::Transpose(m1);
-  s21::Matrix res = s21::Activate(m1, s21::sigmoid);
+  // s21::Matrix res = s21::Activate(m1, s21::sigmoid);
   // s21::Matrix res = s21::ActivateDerivative(m1, s21::sigmoid_derivative);
 
-  auto end = std::chrono::steady_clock::now();
-  std::chrono::duration<double> elapsed = end - start;
-  std::cout << "Elapsed Time : " << std::to_string(elapsed.count()) << " sec"
-            << std::endl;
+  // auto end = std::chrono::steady_clock::now();
+  // std::chrono::duration<double> elapsed = end - start;
+  // std::cout << "Elapsed Time : " << std::to_string(elapsed.count()) << " sec"
+  //           << std::endl;
 
   // s21::Matrix res = RandomMatrixStandart(1000, 1000);
   // for (size_t i = 0; i < res.size(); ++i) {
