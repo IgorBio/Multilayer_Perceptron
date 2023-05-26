@@ -102,4 +102,4 @@ speed:
 	@$(CC) ./tests/speed_matrix_ops.cc ./model/utility/matrix_operations.cc $(OPENMP) && ./a.out
 
 emnist:
-	@$(CC) ./tests/parse_emnist_tests.cc ./model/io/emnist_parser.cc && ./a.out
+	@$(CC) ./tests/parse_emnist_tests.cc ./model/io/io.cc && ./a.out

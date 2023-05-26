@@ -1,7 +1,7 @@
 #include <chrono>
 #include <iostream>
 
-#include "../model/io/emnist_parser.h"
+#include "../model/io/io.h"
 
 constexpr size_t kWidth = 60u;
 
@@ -40,15 +40,13 @@ std::string Align(const std::string &str) {
 }
 
 int main() {
-  s21::EmnistParser parser;
-
   std::cout << "\n"
             << GetColor(Color::kMagenta) << Align("EMNIST PARSING TEST")
             << GetColor(Color::kEnd) << "\n\n";
 
   auto start = std::chrono::steady_clock::now();
 
-  s21::EmnistParser::Dataset dataset = parser.ParseEmnist(
+  s21::Dataset dataset = s21::ParseEmnist(
       "../datasets/emnist-letters/"
       "emnist-letters-train.csv");
 

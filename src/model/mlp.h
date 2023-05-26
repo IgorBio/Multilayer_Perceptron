@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include "graph_mlp/graph_mlp.h"
-#include "io/emnist_parser.h"
+#include "io/io.h"
 #include "matrix_mlp/matrix_mlp.h"
 #include "mlp_abstract.h"
 
@@ -30,7 +30,6 @@ class MLP {
   Config config_;
   ModelType type_;
   Topology topology_;
-  std::unique_ptr<EmnistParser> parser_;
   std::unique_ptr<Interface> mlp_;
   std::vector<Image> train_;
   std::vector<Image> test_;
