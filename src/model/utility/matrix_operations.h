@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <future>
+#include <iostream>
 #include <random>
 #include <stdexcept>
 #include <thread>
@@ -16,6 +17,9 @@ using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
 using Threads = std::vector<std::thread>;
 
+void PrintVector(const Vector v);
+void PrintMatrix(const Matrix m);
+
 template <typename Op>
 Matrix BinaryOp(const Matrix &, const Matrix &, Op);
 Matrix Addition(const Matrix &, const Matrix &);
@@ -24,10 +28,11 @@ Matrix MultiplyHadamard(const Matrix &, const Matrix &);
 Matrix MultiplyNumber(const Matrix &, const double);
 void RandomizeMatrix(Matrix &);
 void RandomizeVector(Vector &);
-inline double RandomWeight();
+double RandomWeight();
 Matrix Transpose(const Matrix &);
 Matrix Activate(const Matrix &, activation_func);
 Matrix ActivateDerivative(const Matrix &, activation_derivative);
+Matrix Multiply(const Matrix &, const Matrix &);
 Matrix MultiplyWinograd(const Matrix &, const Matrix &);
 
 void ComputeRowFactors(const Matrix &, Vector &);

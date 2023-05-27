@@ -186,6 +186,30 @@ TEST(MultiplyWinograd, CorrectCase) {
   EXPECT_TRUE(IsEqualMatrices(m, m3));
 }
 
+// TEST(MultiplyWinograd, CorrectCase2) {
+//   Matrix m1 = {{1}, {2}, {3}, {4}, {5}};
+//   Matrix m2 = {{1, 2, 3, 4, 5}};
+//   Matrix m3 = {{1, 2, 3, 4, 5},
+//                {2, 4, 6, 8, 10},
+//                {3, 6, 9, 12, 15},
+//                {4, 8, 12, 16, 20},
+//                {5, 10, 15, 20, 25}};
+//   Matrix m = MultiplyWinograd(m1, m2);
+//   EXPECT_TRUE(IsEqualMatrices(m, m3));
+// }
+
+TEST(Multiply, CorrectCase) {
+  Matrix m1 = {{1}, {2}, {3}, {4}, {5}};
+  Matrix m2 = {{1, 2, 3, 4, 5}};
+  Matrix m3 = {{1, 2, 3, 4, 5},
+               {2, 4, 6, 8, 10},
+               {3, 6, 9, 12, 15},
+               {4, 8, 12, 16, 20},
+               {5, 10, 15, 20, 25}};
+  Matrix m = Multiply(m1, m2);
+  EXPECT_TRUE(IsEqualMatrices(m, m3));
+}
+
 TEST(OperatorMul, CorrectCase) {
   Matrix m1 = {{1, 2, 3, 4, 5, 6, 7},
                {2, 3, 4, 5, 6, 7, 8},

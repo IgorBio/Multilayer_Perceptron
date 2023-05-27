@@ -1,17 +1,17 @@
 #ifndef MLP_MODEL_CONFIG_H_
 #define MLP_MODEL_CONFIG_H_
 
-#include <vector>
+// #include <vector>
+#include <cstddef>
 
 namespace s21 {
-
-enum class ModelType { kMatrix, kGraph };
 
 struct Metrics {
   double accuracy = 0.0;
   double precision = 0.0;
   double recall = 0.0;
   double f_measure = 0.0;
+  double loss = 0.0;
   std::size_t time = 0u;
 };
 
@@ -24,13 +24,21 @@ struct Topology {
 
 class Config {
  public:
+  enum class ModelType { kMatrix, kGraph };
   enum class TrainType { kTrain, kCrossValidation };
+
+  explicit Config()
+      : model_type_{ModelType::kMatrix},
+        train_type_{TrainType::kTrain},
+        test_sample_{1.0},
+        k_folds_{3u},
+        epochs_{5u},
+        learning_rate_{0.1},
+        activation_threshold_{0.5},
+        verbose_{false} {}
 
   ModelType GetModelType() const { return model_type_; }
   void SetModelType(ModelType type) { model_type_ = type; }
-
-  std::size_t GetHiddenLayers() const { return hidden_layers_; }
-  void SetHiddenLayers(std::size_t layers) { hidden_layers_ = layers; }
 
   TrainType GetTrainType() const { return train_type_; }
   void SetTrainType(TrainType type) { train_type_ = type; }
@@ -47,15 +55,18 @@ class Config {
   double GetLearningRate() const { return learning_rate_; }
   void SetLearningRate(double rate) { learning_rate_ = rate; }
 
+  bool GetVerbose() const { return verbose_; }
+  void SetVerbose(bool verbose) { verbose_ = verbose; }
+
  private:
-  ModelType model_type_{ModelType::kMatrix};
-  std::size_t hidden_layers_{2u};
-  TrainType train_type_{TrainType::kTrain};
-  double test_sample_{1.0};
-  std::size_t k_folds_{3u};
-  std::size_t epochs_{5u};
-  double learning_rate_{0.1};
-  double activation_threshold_{0.5};
+  ModelType model_type_;
+  TrainType train_type_;
+  double test_sample_;
+  std::size_t k_folds_;
+  std::size_t epochs_;
+  double learning_rate_;
+  double activation_threshold_;
+  bool verbose_;
 };
 
 }  // namespace s21

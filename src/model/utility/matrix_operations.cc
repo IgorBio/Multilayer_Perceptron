@@ -2,6 +2,23 @@
 
 namespace s21 {
 
+void PrintVector(const Vector v) {
+  for (auto elem : v) {
+    std::cout << elem << " ";
+  }
+  std::cout << std::endl;
+}
+
+void PrintMatrix(const Matrix m) {
+  for (auto vector : m) {
+    for (auto elem : vector) {
+      std::cout << elem << " ";
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+}
+
 template <typename Op>
 Matrix BinaryOp(const Matrix& m1, const Matrix& m2, Op op) {
   if (m1.empty() or m2.empty() or m1.size() != m2.size() or
@@ -54,7 +71,7 @@ void RandomizeVector(Vector& vector) {
   }
 }
 
-inline double RandomWeight() {
+double RandomWeight() {
   static std::mt19937_64 gen(std::random_device{}());
   static std::uniform_real_distribution<double> dist(-1.0, 1.0);
   return dist(gen);
@@ -204,6 +221,28 @@ void ComputeResultMatrix(const Matrix& m1, const Matrix& m2,
   }
 }
 
+Matrix Multiply(const Matrix& m1, const Matrix& m2) {
+  if (m1.empty() or m2.empty() or m1[0].size() != m2.size()) {
+    throw std::logic_error("Matrices have inconsistent dimensions");
+  }
+
+  const std::size_t rows_m1 = m1.size(), cols_m2 = m2[0].size();
+  if (rows_m1 > 200 and cols_m2 > 200 and m1[0].size() > 200) {
+    return MultiplyWinograd(m1, m2);
+  }
+  Matrix result_matrix(rows_m1, Vector(cols_m2));
+#pragma omp parallel for
+  for (std::size_t i = 0; i < rows_m1; ++i) {
+    for (std::size_t j = 0; j < cols_m2; ++j) {
+      result_matrix[i][j] = 0.0;
+      for (std::size_t k = 0; k < m1[0].size(); ++k) {
+        result_matrix[i][j] += m1[i][k] * m2[k][j];
+      }
+    }
+  }
+  return result_matrix;
+}
+
 Matrix operator+(const Matrix& m1, const Matrix& m2) {
   return Addition(m1, m2);
 }
@@ -213,7 +252,7 @@ Matrix operator-(const Matrix& m1, const Matrix& m2) {
 }
 
 Matrix operator*(const Matrix& m1, const Matrix& m2) {
-  return MultiplyWinograd(m1, m2);
+  return Multiply(m1, m2);
 }
 
 Matrix operator*(const Matrix& m1, const double d) {

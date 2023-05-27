@@ -20,7 +20,7 @@ class Neuron {
   Vector& GetWeights() { return weights_; }
   void UpdateWeights(const Vector& errors, double learning_rate) {
 #pragma omp parallel for
-    for (std::size_t i{0u}; i < weights_.size(); ++i)
+    for (std::size_t i = 0u; i < weights_.size(); ++i)
       weights_[i] += learning_rate * errors[i] * value_;
     bias_ += learning_rate * errors.back();
   }

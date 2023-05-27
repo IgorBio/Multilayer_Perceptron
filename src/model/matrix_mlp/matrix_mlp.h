@@ -2,7 +2,7 @@
 #define MLP_MODEL_MATRIX_MLP_MATRIX_MLP_H_
 
 #include "../config.h"
-#include "../mlp_abstract.h"
+#include "../mlp_interface.h"
 #include "../utility/matrix_operations.h"
 
 namespace s21 {
@@ -14,8 +14,8 @@ class MatrixMlp : public Interface {
   void SetInputLayer(const Vector &) override;
   void ForwardPropagation() override;
   void BackPropagation(const Vector &, double) override;
-  double CalculateLoss(const Matrix &, const Matrix &) override;
-  Vector Predict(const Vector &) const override;
+  double CalculateLoss(const Vector &, const Vector &) override;
+  Vector Predict(const Vector &) override;
   Vector GetOutput() const override;
   Vector GetWeights() const override;
   void SetWeights(const Vector &) override;

@@ -1,30 +1,23 @@
-#include <chrono>
+#include "mlp.h"
+// #include "../config.h"
 #include <iostream>
-#include <random>
-#include <vector>
 
-#include "utility/matrix_operations.h"
+// #include "graph_mlp/neuron.h"
+// #include "graph_mlp/layer.h"
 
-s21::Matrix RandomMatrixStandart(int rows, int cols);
-void PrintMatrix(s21::Matrix m);
+using namespace s21;
 
-s21::Matrix RandomMatrixStandart(int rows, int cols) {
-  s21::Matrix matrix(rows, s21::Vector(cols));
-  std::random_device random_device;
-  std::mt19937 random_generator{random_device()};
-  std::uniform_real_distribution<double> distribution{1, 9};
-  for (int i{0}; i < rows; ++i) {
-    for (int j{0}; j < cols; ++j) {
-      matrix[i][j] = distribution(random_generator);
-    }
+void PrintVector(const Vector v) {
+  for (auto elem : v) {
+    std::cout << elem << " ";
   }
-  return matrix;
+  std::cout << std::endl;
 }
 
-void PrintMatrix(s21::Matrix m) {
-  for (std::size_t i = 0; i < m.size(); i++) {
-    for (std::size_t j = 0; j < m[i].size(); j++) {
-      std::cout << m[i][j] << " ";
+void PrintMatrix(const Matrix m) {
+  for (auto vector : m) {
+    for (auto elem : vector) {
+      std::cout << elem << " ";
     }
     std::cout << std::endl;
   }
@@ -32,48 +25,21 @@ void PrintMatrix(s21::Matrix m) {
 }
 
 int main() {
-  // s21::Matrix m1 = s21::Matrix(1000, s21::Vector(1000));
-  // s21::Matrix m2 = s21::Matrix(1000, s21::Vector(1000));
-  // s21::RandomizeMatrix(m1);
-  // s21::RandomizeMatrix(m2);
+  // Neuron neuron(8);
+  // PrintVector(neuron.GetWeights());
 
-  // s21::Matrix m1 = {{1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
-  // s21::Matrix m2 = {{-1, 2, 3, 4, 5}, {2, 3, 4, 5, 6}, {3, 4, 5, 6, 7}};
-  // s21::Matrix m2 = {{1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {5, 6, 7}, {6, 7, 8}};
-  // double d = 5;
-  // s21::Matrix m1 = s21::Matrix(10, s21::Vector(10));
-  // s21::Matrix m1 = RandomMatrixStandart(1000, 1000);
-  // s21::Matrix m2 = RandomMatrixStandart(1000, 1000);
+  // Layer layer(10, 10);
 
-  // s21::Matrix res = s21::Matrix(10, s21::Vector(10));
+  Topology topology{.hidden_layers = 2u,
+                    .input_layer = 784u,
+                    .hidden_layer = 240u,
+                    .output_layer = 26u};
 
-  // auto start = std::chrono::steady_clock::now();
-
-  // s21::RandomizeMatrix(m1);
-  // s21::Matrix res = s21::Addition(m1, m2);
-  // s21::Matrix res = s21::Subtraction(m1, m2);
-  // s21::Matrix res = s21::MultiplyNumber(m1, d);
-  // s21::Matrix res = s21::MultiplyHadamard(m1, m2);
-  // s21::Matrix res = s21::MultiplyWinograd(m1, m2);
-  // s21::Matrix res = s21::Transpose(m1);
-  // s21::Matrix res = s21::Activate(m1, s21::sigmoid);
-  // s21::Matrix res = s21::ActivateDerivative(m1, s21::sigmoid_derivative);
-
-  // auto end = std::chrono::steady_clock::now();
-  // std::chrono::duration<double> elapsed = end - start;
-  // std::cout << "Elapsed Time : " << std::to_string(elapsed.count()) << " sec"
-  //           << std::endl;
-
-  // s21::Matrix res = RandomMatrixStandart(1000, 1000);
-  // for (size_t i = 0; i < res.size(); ++i) {
-  //   for (size_t j = 0; j < res[0].size(); ++j) {
-  //     for (size_t k = 0; k < m2.size(); k++) {
-  //       res[i][j] += m1[i][k] * m2[k][j];
-  //     }
-  //   }
-  // }
-  // PrintMatrix(m1);
-  // PrintMatrix(m2);
-  // PrintMatrix(res);
+  MLP mlp{Config::ModelType::kMatrix, topology};
+  mlp.SetTrainDataset("../datasets/emnist-letters/sample-train.csv");
+  mlp.SetVerbose(true);
+  mlp.SetTrainType(Config::TrainType::kCrossValidation);
+  // mlp.SetTestDataset("../datasets/emnist-letters/emnist-letters-test.csv");
+  mlp.Train();
   return 0;
 }

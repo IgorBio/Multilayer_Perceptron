@@ -2,7 +2,7 @@
 #define MLP_MODEL_GRAPH_MLP_GRAPH_MLP_H_
 
 #include "../config.h"
-#include "../mlp_abstract.h"
+#include "../mlp_interface.h"
 #include "layer.h"
 
 namespace s21 {
@@ -16,8 +16,8 @@ class GraphMlp : public Interface {
   void SetInputLayer(const Vector &) override;
   void ForwardPropagation() override;
   void BackPropagation(const Vector &, double) override;
-  double CalculateLoss(const Matrix &, const Matrix &) override;
-  Vector Predict(const Vector &) const override;
+  double CalculateLoss(const Vector &, const Vector &) override;
+  Vector Predict(const Vector &) override;
   Vector GetOutput() const override;
   Vector GetWeights() const override;
   void SetWeights(const Vector &) override;

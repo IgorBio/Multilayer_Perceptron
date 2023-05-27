@@ -1,5 +1,5 @@
-#ifndef MLP_MODEL_MLP_ABSTRACT_H_
-#define MLP_MODEL_MLP_ABSTRACT_H_
+#ifndef MLP_MODEL_MLP_INTERFACE_H_
+#define MLP_MODEL_MLP_INTERFACE_H_
 
 #include <vector>
 
@@ -15,12 +15,12 @@ class Interface {
   virtual void SetInputLayer(const Vector &) = 0;
   virtual void ForwardPropagation() = 0;
   virtual void BackPropagation(const Vector &, double) = 0;
-  virtual double CalculateLoss(const Matrix &, const Matrix &) = 0;
-  virtual Vector Predict(const Vector &) const = 0;
+  virtual double CalculateLoss(const Vector &, const Vector &) = 0;
+  virtual Vector Predict(const Vector &) = 0;
   virtual Vector GetOutput() const = 0;
   virtual Vector GetWeights() const = 0;
   virtual void SetWeights(const Vector &) = 0;
 };
 }  // namespace s21
 
-#endif  // MLP_MODEL_MLP_ABSTRACT_H_
+#endif  // MLP_MODEL_MLP_INTERFACE_H_

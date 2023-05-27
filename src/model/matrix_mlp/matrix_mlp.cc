@@ -38,34 +38,29 @@ void MatrixMlp::BackPropagation(const Vector &expected, double lr) {
     errors =
         MultiplyHadamard(errors * Transpose(weights_[i]),
                          ActivateDerivative(neurons_[i], sigmoid_derivative));
+
     UpdateWeights(errors, lr, i - 1);
   }
 }
 
 void MatrixMlp::UpdateWeights(const Matrix &errors, double lr,
                               std::size_t idx) {
-  weights_[idx] = weights_[idx] - (Transpose(neurons_[idx - 1]) * errors) * lr;
+  weights_[idx] = weights_[idx] - (Transpose(neurons_[idx]) * errors) * lr;
 }
 
-double MatrixMlp::CalculateLoss(const Matrix &inputs,
-                                const Matrix &expected_outputs) {
-  double total_loss{0.0};
-#pragma omp parallel for reduction(+ : total_loss)
-  for (std::size_t i{0u}; i < inputs.size(); ++i) {
-    SetInputLayer(inputs[i]);
-    ForwardPropagation();
-    Vector output = GetOutput();
-    double loss{0.0};
-    for (std::size_t j{0u}; j < output.size(); ++j) {
-      loss += std::pow(output[j] - expected_outputs[i][j], 2);
-    }
-    total_loss += loss;
+double MatrixMlp::CalculateLoss(const Vector &output,
+                                const Vector &expected_output) {
+  double loss = 0.0;
+  for (std::size_t i{0u}; i < output.size(); ++i) {
+    double diff = expected_output[i] - output[i];
+    loss += diff * diff;
   }
-  return total_loss / inputs.size();
+  return loss;
 }
 
-Vector MatrixMlp::Predict(const Vector &input) const {
+Vector MatrixMlp::Predict(const Vector &input) {
   // ToDo
+  return Vector();
 }
 
 Vector MatrixMlp::GetOutput() const {

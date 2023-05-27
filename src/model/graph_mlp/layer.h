@@ -20,11 +20,11 @@ class Layer {
     });
   }
 
-  Neurons GetLayer() const { return layer_; }
+  Neurons& GetLayer() { return layer_; }
   Matrix CalculateLoss(const Vector& expected) const {
     Matrix error(layer_.size(), Vector(expected.size()));
 #pragma omp parallel for
-    for (std::size_t i{0u}; i < layer_.size(); ++i) {
+    for (std::size_t i = 0u; i < layer_.size(); ++i) {
       auto& neuron = *layer_[i];
       for (std::size_t j{0u}; j < expected.size(); ++j) {
         error[i][j] = expected[j] - neuron.GetValue();
@@ -34,7 +34,7 @@ class Layer {
   }
   void UpdateWeights(const Matrix errors, double learning_rate) {
 #pragma omp parallel for
-    for (std::size_t i{0u}; i < layer_.size(); ++i) {
+    for (std::size_t i = 0u; i < layer_.size(); ++i) {
       auto& neuron = *layer_[i];
       neuron.UpdateWeights(errors[i], learning_rate);
     }

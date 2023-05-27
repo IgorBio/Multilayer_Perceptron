@@ -89,7 +89,13 @@ int main() {
             << " sec"
             << "\n";
   start = std::chrono::steady_clock::now();
-  s21::Matrix res = s21::MultiplyWinograd(m1, m2);
+  s21::Matrix res = s21::Multiply(m1, m2);
+  end = std::chrono::steady_clock::now();
+  elapsed = end - start;
+  std::cout << "\tMultiply: " << std::to_string(elapsed.count()) << " sec"
+            << "\n";
+  start = std::chrono::steady_clock::now();
+  res = s21::MultiplyWinograd(m1, m2);
   end = std::chrono::steady_clock::now();
   elapsed = end - start;
   std::cout << "\tMultiply Winograd: " << std::to_string(elapsed.count())

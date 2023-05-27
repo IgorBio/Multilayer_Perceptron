@@ -12,8 +12,13 @@ REPORTDIR=gcov_report
 GCOV=--coverage
 OPEN=
 FILTER=
-CPPCHECKFLAGS = --enable=all --suppress=missingIncludeSystem --language=c++ --std=c++17
+CPPCHECKFLAGS=--enable=all --suppress=missingIncludeSystem --language=c++ --std=c++17
 TEST_LIB:=./tests/tests_main.cc \
+	./model/utility/matrix_operations.cc
+SOURCES=./model/mlp.cc \
+	./model/io/io.cc \
+	./model/graph_mlp/graph_mlp.cc \
+	./model/matrix_mlp/matrix_mlp.cc \
 	./model/utility/matrix_operations.cc
 
 OS = $(shell uname)
@@ -96,7 +101,7 @@ else
 endif
 
 my:
-	@g++ ./model/my.cc ./model/utility/matrix_operations.cc $(OPENMP)  && ./a.out
+	@g++ ./model/my.cc $(SOURCES) $(OPENMP)  && ./a.out
 
 speed:
 	@$(CC) ./tests/speed_matrix_ops.cc ./model/utility/matrix_operations.cc $(OPENMP) && ./a.out
