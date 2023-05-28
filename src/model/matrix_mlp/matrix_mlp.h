@@ -22,7 +22,7 @@ class MatrixMlp : public Interface {
 
  private:
   void AddLayer(std::size_t, std::size_t);
-  void UpdateWeights(const Matrix &, double, std::size_t);
+  void UpdateLayer(const Matrix &, double, std::size_t);
 
   std::vector<Matrix> weights_;
   std::vector<Matrix> neurons_;

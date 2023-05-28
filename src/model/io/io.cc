@@ -35,7 +35,7 @@ void SaveWeights(const std::vector<Matrix>& weights, const std::string& path) {
   file.write(reinterpret_cast<const char*>(&num_layers), sizeof(num_layers));
 
   // write each layer's weights
-  for (const auto& layer_weights : weights) {
+  for (const Matrix& layer_weights : weights) {
     // write the dimensions of the weight matrix
     std::size_t rows = layer_weights.size();
     std::size_t cols = layer_weights[0].size();
@@ -43,7 +43,7 @@ void SaveWeights(const std::vector<Matrix>& weights, const std::string& path) {
     file.write(reinterpret_cast<const char*>(&cols), sizeof(cols));
 
     // write the weight matrix
-    for (const auto& row : layer_weights) {
+    for (const Vector& row : layer_weights) {
       file.write(reinterpret_cast<const char*>(row.data()),
                  sizeof(double) * cols);
     }
@@ -70,7 +70,7 @@ std::vector<Matrix> LoadWeights(const std::string& path) {
 
     // read the weight matrix
     Matrix layer_weights(rows, Vector(cols));
-    for (auto& row : layer_weights) {
+    for (Vector& row : layer_weights) {
       file.read(reinterpret_cast<char*>(row.data()), sizeof(double) * cols);
     }
     weights[i] = std::move(layer_weights);

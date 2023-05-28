@@ -1,7 +1,6 @@
 #ifndef MLP_MODEL_CONFIG_H_
 #define MLP_MODEL_CONFIG_H_
 
-// #include <vector>
 #include <cstddef>
 
 namespace s21 {
@@ -34,7 +33,7 @@ class Config {
         k_folds_{3u},
         epochs_{5u},
         learning_rate_{0.1},
-        activation_threshold_{0.5},
+        activate_threshold_{0.5},
         verbose_{false} {}
 
   ModelType GetModelType() const { return model_type_; }
@@ -47,7 +46,7 @@ class Config {
   void SetTestSample(double sample) { test_sample_ = sample; }
 
   std::size_t GetKFolds() const { return k_folds_; }
-  void SetKFolds(std::size_t folds) { k_folds_ = folds; }
+  void SetKFolds(std::size_t k_folds) { k_folds_ = k_folds; }
 
   std::size_t GetEpochs() const { return epochs_; }
   void SetEpochs(std::size_t epochs) { epochs_ = epochs; }
@@ -58,6 +57,9 @@ class Config {
   bool GetVerbose() const { return verbose_; }
   void SetVerbose(bool verbose) { verbose_ = verbose; }
 
+  double GetActivateThreshold() const { return activate_threshold_; }
+  void SetActivateThreshold(double thr) { activate_threshold_ = thr; }
+
  private:
   ModelType model_type_;
   TrainType train_type_;
@@ -65,7 +67,7 @@ class Config {
   std::size_t k_folds_;
   std::size_t epochs_;
   double learning_rate_;
-  double activation_threshold_;
+  double activate_threshold_;
   bool verbose_;
 };
 

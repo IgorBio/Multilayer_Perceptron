@@ -41,10 +41,14 @@ Vector GraphMlp::Predict(const Vector& input) {
   return output;
 }
 
-double GraphMlp::CalculateLoss(const Vector& inputs,
-                               const Vector& expected_outputs) {
-  // TODO
-  return 0.0;
+double GraphMlp::CalculateLoss(const Vector& predicted_output,
+                               const Vector& expected_output) {
+  double loss = 0.0;
+  for (std::size_t i{0u}; i < predicted_output.size(); ++i) {
+    double diff = expected_output[i] - predicted_output[i];
+    loss += diff * diff;
+  }
+  return loss;
 }
 
 void GraphMlp::ForwardPropagation() {
@@ -69,10 +73,14 @@ void GraphMlp::ForwardPropagation() {
 }
 
 void GraphMlp::BackPropagation(const Vector& expected, double learning_rate) {
-  // auto output_layer = net_.back().get();
-  // auto output_errors = output_layer->CalculateLoss(expected);
+  Vector v = expected;
+  for (auto& el : v) {
+    el *= learning_rate;
+  }
+  // auto output_layer = net_.back().get(); auto output_errors =
+  // output_layer->CalculateLoss(expected);
 
-  // UpdateWeights(output_errors, learning_rate, net_.size() - 1);
+  // UpdateLayer(output_errors, learning_rate, net_.size() - 1);
 
   // for (std::size_t i = net_.size() - 2; i > 0; --i) {
   //   auto& layer = *net_[i];
@@ -94,11 +102,11 @@ void GraphMlp::BackPropagation(const Vector& expected, double learning_rate) {
   //           error *
   //           ApplyActivationDerivative(neuron.GetValue(), sigmoid_derivative);
   //     }
-  //     neuron.UpdateWeights(errors_with_activation, learning_rate);
+  //     neuron.UpdateLayer(errors_with_activation, learning_rate);
   //     next_errors[j] = errors_with_activation;
   //   }
 
-  //   UpdateWeights(next_errors, learning_rate, i);
+  //   UpdateLayer(next_errors, learning_rate, i);
   // }
 
   // auto& input_layer = *net_.front();
@@ -119,16 +127,16 @@ void GraphMlp::BackPropagation(const Vector& expected, double learning_rate) {
   //         error *
   //         ApplyActivationDerivative(neuron.GetValue(), sigmoid_derivative);
   //   }
-  //   neuron.UpdateWeights(errors_with_activation, learning_rate);
+  //   neuron.UpdateLayer(errors_with_activation, learning_rate);
   //   next_errors[i] = errors_with_activation;
   // }
 
-  // UpdateWeights(next_errors, learning_rate, 0);
+  // UpdateLayer(next_errors, learning_rate, 0);
 }
 
-void GraphMlp::UpdateWeights(const Matrix& errors, double learning_rate,
-                             std::size_t idx) {
-  net_[idx]->UpdateWeights(errors, learning_rate);
+void GraphMlp::UpdateLayer(const Matrix& errors, double learning_rate,
+                           std::size_t idx) {
+  net_[idx]->UpdateLayer(errors, learning_rate);
 }
 
 Vector GraphMlp::GetOutput() const {

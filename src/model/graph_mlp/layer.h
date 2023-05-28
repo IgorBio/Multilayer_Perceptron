@@ -32,11 +32,11 @@ class Layer {
     }
     return error;
   }
-  void UpdateWeights(const Matrix errors, double learning_rate) {
+  void UpdateLayer(const Matrix errors, double learning_rate) {
 #pragma omp parallel for
     for (std::size_t i = 0u; i < layer_.size(); ++i) {
       auto& neuron = *layer_[i];
-      neuron.UpdateWeights(errors[i], learning_rate);
+      neuron.Update(errors[i], learning_rate);
     }
   }
 

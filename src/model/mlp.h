@@ -1,8 +1,6 @@
 #ifndef MLP_MODEL_MLP_H_
 #define MLP_MODEL_MLP_H_
 
-#include <iostream>
-
 #include "config.h"
 #include "graph_mlp/graph_mlp.h"
 #include "io/io.h"
@@ -12,27 +10,32 @@ namespace s21 {
 
 class MLP {
  public:
-  explicit MLP(const Config::ModelType type, const Topology topology);
+  explicit MLP(const Topology topology);
 
   void Train();
   void Test();
-  Vector Predict(const Image& image);
+  Vector Predict(const Vector&);
+  char Predict(const Image&);
 
-  Vector GetWeights() const;
+  Vector GetWeights() const { return mlp_->GetWeights(); }
   void SetWeights(const Vector& weights);
+  void SetWeights(const std::string& path);
 
   void SetTrainDataset(const std::string& path) { train_ = ParseEmnist(path); }
+  void SetTrainDataset(const Dataset& dataset) { train_ = dataset; };
   void SetTestDataset(const std::string& path) { test_ = ParseEmnist(path); }
+  void SetTestDataset(const Dataset& dataset) { test_ = dataset; };
 
-  Config::ModelType GetType() const { return type_; }
-  void SetType(Config::ModelType type) { type_ = type; }
+  Config::ModelType GetType() const { return config_.GetModelType(); }
+  void SetType(Config::ModelType type);
 
-  const Topology& GetTopology() const { return topology_; }
-
-  bool Verbose() const { return config_.GetVerbose(); }
   void SetVerbose(bool verbose) { config_.SetVerbose(verbose); }
-
   void SetTrainType(Config::TrainType type) { config_.SetTrainType(type); }
+  void SetEpochs(std::size_t epochs) { config_.SetEpochs(epochs); }
+  void SetLearningRate(double rate) { config_.SetLearningRate(rate); }
+  void SetTestSample(double sample) { config_.SetTestSample(sample); }
+  void SetKFolds(std::size_t k_folds) { config_.SetKFolds(k_folds); }
+  void SetActivateThreshold(double thr) { config_.SetActivateThreshold(thr); }
 
  private:
   Vector ExpectedOutput(const Image& image);
@@ -41,7 +44,6 @@ class MLP {
   void CrossValidate();
 
   Config config_;
-  Config::ModelType type_;
   Topology topology_;
   std::unique_ptr<Interface> mlp_;
   Dataset train_;

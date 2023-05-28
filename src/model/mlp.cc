@@ -2,13 +2,8 @@
 
 namespace s21 {
 
-MLP::MLP(const Config::ModelType type, const Topology topology)
-    : type_{type}, topology_{topology} {
-  if (type_ == Config::ModelType::kMatrix) {
-    mlp_ = std::make_unique<MatrixMlp>(topology_);
-  } else if (type_ == Config::ModelType::kGraph) {
-    mlp_ = std::make_unique<GraphMlp>(topology_);
-  }
+MLP::MLP(const Topology topology) : topology_{topology} {
+  mlp_ = std::make_unique<MatrixMlp>(topology_);
 }
 
 void MLP::Train() {
@@ -24,11 +19,11 @@ void MLP::TrainEpochs() {
   for (std::size_t epoch{0u}; epoch < config_.GetEpochs(); ++epoch) {
     double total_loss{0.0};
     std::random_shuffle(train_.begin(), train_.end());
-    for (const auto& image : train_) {
+    for (const Image& image : train_) {
       mlp_->SetInputLayer(image.GetPixels());
       mlp_->ForwardPropagation();
-      auto expected_output = ExpectedOutput(image);
-      auto predicted_output = mlp_->GetOutput();
+      Vector expected_output = ExpectedOutput(image);
+      Vector predicted_output = mlp_->GetOutput();
       total_loss += mlp_->CalculateLoss(predicted_output, expected_output);
       mlp_->BackPropagation(expected_output, config_.GetLearningRate());
     }
@@ -36,14 +31,14 @@ void MLP::TrainEpochs() {
                         std::chrono::steady_clock::now() - start_time)
                         .count();
     metrics_.loss = total_loss / static_cast<double>(train_.size());
-    if (Verbose()) Report(epoch, {});
+    if (config_.GetVerbose()) Report(epoch, {});
   }
 }
 
 void MLP::CrossValidate() {
   auto start_time = std::chrono::steady_clock::now();
   std::vector<Dataset> folds(config_.GetKFolds());
-  std::size_t fold_size = train_.size() / config_.GetKFolds();
+  // std::size_t fold_size = train_.size() / config_.GetKFolds();
   std::vector<std::size_t> indices(train_.size());
   std::iota(indices.begin(), indices.end(), 0u);
   std::random_shuffle(indices.begin(), indices.end());
@@ -64,11 +59,11 @@ void MLP::CrossValidate() {
       }
 
       std::random_shuffle(train_fold.begin(), train_fold.end());
-      for (const auto& image : train_fold) {
+      for (const Image& image : train_fold) {
         mlp_->SetInputLayer(image.GetPixels());
         mlp_->ForwardPropagation();
-        auto expected_output = ExpectedOutput(image);
-        auto predicted_output = mlp_->GetOutput();
+        Vector expected_output = ExpectedOutput(image);
+        Vector predicted_output = mlp_->GetOutput();
         total_loss +=
             mlp_->CalculateLoss({predicted_output}, {expected_output}) /
             train_fold.size();
@@ -80,10 +75,12 @@ void MLP::CrossValidate() {
                           std::chrono::steady_clock::now() - start_time)
                           .count();
       metrics_.loss = total_loss;
-      if (Verbose()) Report(epoch, fold_index);
+      if (config_.GetVerbose()) Report(epoch, fold_index);
     }
   }
 }
+
+Vector MLP::Predict(const Vector& v) { return mlp_->Predict(v); }
 
 /**
  * Reports training and validation metrics for a given epoch and fold.
@@ -91,7 +88,7 @@ void MLP::CrossValidate() {
  * @param epoch The current epoch number.
  * @param fold_index The index of the current fold (if using cross-validation).
  */
-void MLP::Report(const std::size_t epoch, const std::size_t fold_index = 0u) {
+void MLP::Report(const std::size_t epoch, const std::size_t fold_index) {
   std::string fold_info;
   if (config_.GetTrainType() == Config::TrainType::kCrossValidation) {
     fold_info = " (fold " + std::to_string(fold_index + 1) + ")";
@@ -106,6 +103,15 @@ Vector MLP::ExpectedOutput(const Image& image) {
   Vector expected_output(topology_.output_layer, 0.0);
   expected_output[image.GetLabel()] = 1.0;
   return expected_output;
+}
+
+void MLP::SetType(Config::ModelType type) {
+  config_.SetModelType(type);
+  if (type == Config::ModelType::kMatrix) {
+    mlp_ = std::make_unique<MatrixMlp>(topology_);
+  } else if (type == Config::ModelType::kGraph) {
+    mlp_ = std::make_unique<GraphMlp>(topology_);
+  }
 }
 
 }  // namespace s21

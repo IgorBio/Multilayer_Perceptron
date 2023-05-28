@@ -13,13 +13,12 @@ GCOV=--coverage
 OPEN=
 FILTER=
 CPPCHECKFLAGS=--enable=all --suppress=missingIncludeSystem --language=c++ --std=c++17
-TEST_LIB:=./tests/tests_main.cc \
-	./model/utility/matrix_operations.cc
 SOURCES=./model/mlp.cc \
 	./model/io/io.cc \
 	./model/graph_mlp/graph_mlp.cc \
 	./model/matrix_mlp/matrix_mlp.cc \
 	./model/utility/matrix_operations.cc
+TEST_LIB:=./tests/tests_main.cc $(SOURCES)
 
 OS = $(shell uname)
 

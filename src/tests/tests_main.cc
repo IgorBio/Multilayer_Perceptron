@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "matrix_mlp_tests.cc"
 #include "matrix_operations_tests.cc"
 
 int main(int argc, char* argv[]) {

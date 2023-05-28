@@ -13,11 +13,13 @@ class Image {
   static constexpr const double kMaxPixel = 255.0;
   static constexpr const int kPixels = 784;
 
-  Image() : label_{0} { pixels_.reserve(kPixels); }
-  explicit Image(const Pixels& pixels) : label_(-1), pixels_(pixels) {}
+  Image() : label_{0u} { pixels_.reserve(kPixels); }
+  explicit Image(const Pixels& pixels) : label_(0u), pixels_(pixels) {}
+  Image(const Pixels& pixels, std::size_t label)
+      : label_(label), pixels_(pixels) {}
 
-  int GetLabel() const { return label_; }
-  void SetLabel(int label) { label_ = label; }
+  std::size_t GetLabel() const { return label_; }
+  void SetLabel(std::size_t label) { label_ = label; }
   const Pixels& GetPixels() const { return pixels_; }
   void AddPixel(double pixel) { pixels_.push_back(pixel); }
 
@@ -27,7 +29,7 @@ class Image {
   }
 
  private:
-  int label_;
+  std::size_t label_;
   Pixels pixels_;
 };
 
