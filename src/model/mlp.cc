@@ -80,8 +80,6 @@ void MLP::CrossValidate() {
   }
 }
 
-Vector MLP::Predict(const Vector& v) { return mlp_->Predict(v); }
-
 /**
  * Reports training and validation metrics for a given epoch and fold.
  *
@@ -100,9 +98,16 @@ void MLP::Report(const std::size_t epoch, const std::size_t fold_index) {
 }
 
 Vector MLP::ExpectedOutput(const Image& image) {
-  Vector expected_output(topology_.output_layer, 0.0);
+  Vector expected_output(topology_.GetOutputSize(), 0.0);
   expected_output[image.GetLabel()] = 1.0;
   return expected_output;
+}
+
+std::size_t MLP::PredictLabel(const Image& image) {
+  Vector vector = image.GetPixels();
+  Vector output = mlp_->Predict(vector);
+  auto it = std::max_element(output.begin(), output.end());
+  return std::distance(output.begin(), it);
 }
 
 void MLP::SetType(Config::ModelType type) {

@@ -67,7 +67,7 @@ tests: mostlyclean
 	@rm -rf *.o *.a Test
 
 gcov_report: mostlyclean
-	@$(CC) $(TEST_LIB) -o Test $(GCOV) $(CHECKFLAGS)
+	@$(CC) $(TEST_LIB) -o Test $(GCOV) $(CHECKFLAGS) $(OPENMP)
 	@./Test
 	@lcov --no-external -c -d . -o $(APP).info
 	@genhtml -o $(REPORTDIR) $(APP).info

@@ -2,14 +2,14 @@
 
 namespace s21 {
 
-GraphMlp::GraphMlp(Topology topology) : net_{topology.hidden_layers + 2} {
-  AddLayer(topology.input_layer, topology.hidden_layer);
+GraphMlp::GraphMlp(Topology topology) : net_{topology.GetLayersCount()} {
+  AddLayer(topology.GetInputSize(), topology.GetLayerSize(1));
 
-  for (std::size_t i{1u}; i < topology.hidden_layers; ++i) {
-    AddLayer(topology.hidden_layer, topology.hidden_layer);
+  for (std::size_t i{1u}; i < topology.GetHiddenCount(); ++i) {
+    AddLayer(topology.GetLayerSize(i), topology.GetLayerSize(i + 1));
   }
 
-  AddLayer(topology.hidden_layer, topology.output_layer);
+  AddLayer(topology.GetLastHidden(), topology.GetOutputSize());
 }
 
 void GraphMlp::AddLayer(std::size_t input_size, std::size_t output_size) {

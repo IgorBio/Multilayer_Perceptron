@@ -14,8 +14,8 @@ class MLP {
 
   void Train();
   void Test();
-  Vector Predict(const Vector&);
   char Predict(const Image&);
+  std::size_t PredictLabel(const Image&);
 
   Vector GetWeights() const { return mlp_->GetWeights(); }
   void SetWeights(const Vector& weights);

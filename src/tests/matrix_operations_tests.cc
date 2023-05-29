@@ -15,11 +15,12 @@ bool IsEqualMatrices(const Matrix& m1, const Matrix& m2) {
   }
   for (std::size_t i{0u}; i < m1.size(); ++i) {
     for (std::size_t j{0u}; j < m1[0].size(); ++j) {
-      if (!((std::fabs(m1[i][j] - m2[i][j])) < kEps)) {
+      if (std::fabs(m1[i][j] - m2[i][j]) >= kEps) {
         return false;
       }
     }
   }
+
   return true;
 }
 

@@ -2,6 +2,7 @@
 #define MLP_MODEL_CONFIG_H_
 
 #include <cstddef>
+#include <vector>
 
 namespace s21 {
 
@@ -14,11 +15,29 @@ struct Metrics {
   std::size_t time = 0u;
 };
 
-struct Topology {
-  std::size_t hidden_layers = 2u;
-  std::size_t input_layer = 784u;
-  std::size_t hidden_layer = 240u;
-  std::size_t output_layer = 26u;
+class Topology {
+ public:
+  Topology() : sizes_{784, 100, 100, 26} {}
+  explicit Topology(std::initializer_list<std::size_t> sizes) : sizes_{sizes} {}
+
+  std::size_t GetInputSize() const { return sizes_.front(); }
+  void SetInputSize(std::size_t size) { sizes_.front() = size; }
+
+  std::size_t GetOutputSize() const { return sizes_.back(); }
+  void SetOutputSize(std::size_t size) { sizes_.back() = size; }
+
+  std::size_t GetLayersCount() const { return sizes_.size(); }
+
+  std::size_t GetHiddenCount() const { return sizes_.size() - 2; }
+
+  std::size_t GetLayerSize(std::size_t idx) const { return sizes_[idx]; }
+
+  void SetLayerSize(std::size_t size, std::size_t idx) { sizes_[idx] = size; }
+
+  std::size_t GetLastHidden() const { return sizes_[sizes_.size() - 2]; }
+
+ private:
+  std::vector<std::size_t> sizes_;
 };
 
 class Config {
