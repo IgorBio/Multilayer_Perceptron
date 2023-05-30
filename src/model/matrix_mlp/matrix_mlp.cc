@@ -2,7 +2,7 @@
 
 namespace s21 {
 
-MatrixMlp::MatrixMlp(Topology topology) : neurons_(topology.GetLayersCount()) {
+MatrixMlp::MatrixMlp(Topology topology) : values_(topology.GetLayersCount()) {
   AddLayer(topology.GetInputSize(), topology.GetLayerSize(1));
 
   for (std::size_t i{1u}; i < topology.GetHiddenCount(); ++i) {
@@ -15,37 +15,35 @@ MatrixMlp::MatrixMlp(Topology topology) : neurons_(topology.GetLayersCount()) {
 void MatrixMlp::AddLayer(std::size_t rows, std::size_t cols) {
   weights_.emplace_back(rows, Vector(cols));
   RandomizeMatrix(weights_.back());
-  bias_.emplace_back(1, Vector(cols, RandomWeight()));
 }
 
 void MatrixMlp::SetInputLayer(const Vector &input) {
-  neurons_[0] = Matrix(1, input);
+  values_[0] = Matrix(1, input);
 }
 
 void MatrixMlp::ForwardPropagation() {
   for (std::size_t i{0u}; i < weights_.size(); ++i) {
-    neurons_[i + 1] = Activate(neurons_[i] * weights_[i] + bias_[i], sigmoid);
+    values_[i + 1] = Activate(values_[i] * weights_[i], sigmoid);
   }
 }
 
 void MatrixMlp::BackPropagation(const Vector &expected, double lr) {
   Matrix errors =
-      MultiplyHadamard(neurons_.back() - Matrix(1, expected),
-                       ActivateDerivative(neurons_.back(), sigmoid_derivative));
+      MultiplyHadamard(values_.back() - Matrix(1, expected),
+                       ActivateDerivative(values_.back(), sigmoid_derivative));
   UpdateLayer(errors, lr, weights_.size() - 1);
 
-  for (std::size_t i{neurons_.size() - 2}; i > 0; --i) {
+  for (std::size_t i{values_.size() - 2}; i > 0; --i) {
     errors =
         MultiplyHadamard(errors * Transpose(weights_[i]),
-                         ActivateDerivative(neurons_[i], sigmoid_derivative));
+                         ActivateDerivative(values_[i], sigmoid_derivative));
 
     UpdateLayer(errors, lr, i - 1);
   }
 }
 
 void MatrixMlp::UpdateLayer(const Matrix &errors, double lr, std::size_t idx) {
-  weights_[idx] = weights_[idx] - (Transpose(neurons_[idx]) * errors) * lr;
-  bias_[idx] = bias_[idx] - errors * lr;
+  weights_[idx] = weights_[idx] - (Transpose(values_[idx]) * errors) * lr;
 }
 
 double MatrixMlp::CalculateLoss(const Vector &predicted_output,
@@ -65,28 +63,12 @@ Vector MatrixMlp::Predict(const Vector &input) {
 }
 
 Vector MatrixMlp::GetOutput() const {
-  const Matrix &output_matrix = neurons_.back();
+  const Matrix &output_matrix = values_.back();
   return Vector{output_matrix.front().cbegin(), output_matrix.front().cend()};
 }
 
-Vector MatrixMlp::GetWeights() const {
-  Vector weights;
-  for (auto &matrix : weights_) {
-    for (const auto &row : matrix) {
-      weights.insert(weights.end(), row.begin(), row.end());
-    }
-  }
-  return weights;
-}
+Weigths MatrixMlp::GetWeights() const { return weights_; }
 
-void MatrixMlp::SetWeights(const Vector &weights) {
-  auto it = weights.cbegin();
-  for (auto &matrix : weights_) {
-    for (auto &row : matrix) {
-      std::copy(it, it + row.size(), row.begin());
-      it += row.size();
-    }
-  }
-}
+void MatrixMlp::SetWeights(const Weigths &weights) { weights_ = weights; }
 
 }  // namespace s21

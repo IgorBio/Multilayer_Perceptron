@@ -6,15 +6,6 @@
 
 namespace s21 {
 
-struct Metrics {
-  double accuracy = 0.0;
-  double precision = 0.0;
-  double recall = 0.0;
-  double f_measure = 0.0;
-  double loss = 0.0;
-  std::size_t time = 0u;
-};
-
 class Topology {
  public:
   Topology() : sizes_{784, 100, 100, 26} {}

@@ -18,8 +18,8 @@ class Interface {
   virtual double CalculateLoss(const Vector &, const Vector &) = 0;
   virtual Vector Predict(const Vector &) = 0;
   virtual Vector GetOutput() const = 0;
-  virtual Vector GetWeights() const = 0;
-  virtual void SetWeights(const Vector &) = 0;
+  virtual std::vector<Matrix> GetWeights() const = 0;
+  virtual void SetWeights(const std::vector<Matrix> &) = 0;
 };
 }  // namespace s21
 

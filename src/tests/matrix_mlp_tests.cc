@@ -7,15 +7,15 @@ using namespace s21;
 TEST(MLP, Initialization1) {
   Topology topology{2, 2, 1};
   MLP mlp(topology);
-  Vector weights = mlp.GetWeights();
-  EXPECT_EQ(weights.size(), 6);
+  std::vector<Matrix> weights = mlp.GetWeights();
+  EXPECT_EQ(weights.size(), 2);
 }
 
 TEST(MLP, Initialization2) {
   Topology topology;
   MLP mlp(topology);
-  Vector weights = mlp.GetWeights();
-  EXPECT_EQ(weights.size(), 91000);
+  std::vector<Matrix> weights = mlp.GetWeights();
+  EXPECT_EQ(weights.size(), 3);
 }
 
 TEST(MLP, XOR) {

@@ -1,25 +1,29 @@
 #ifndef MLP_MODEL_MLP_H_
 #define MLP_MODEL_MLP_H_
 
+#include <iomanip>
+
 #include "config.h"
 #include "graph_mlp/graph_mlp.h"
 #include "io/io.h"
 #include "matrix_mlp/matrix_mlp.h"
+#include "metrics.h"
 
 namespace s21 {
 
 class MLP {
  public:
-  explicit MLP(const Topology topology);
+  explicit MLP(const Topology);
 
   void Train();
   void Test();
+  Vector Predict(const Vector&);
   char Predict(const Image&);
   std::size_t PredictLabel(const Image&);
+  void Save();
+  void Load(const std::string& path);
 
-  Vector GetWeights() const { return mlp_->GetWeights(); }
-  void SetWeights(const Vector& weights);
-  void SetWeights(const std::string& path);
+  Weigths GetWeights() const { return mlp_->GetWeights(); }
 
   void SetTrainDataset(const std::string& path) { train_ = ParseEmnist(path); }
   void SetTrainDataset(const Dataset& dataset) { train_ = dataset; };
@@ -38,8 +42,8 @@ class MLP {
   void SetActivateThreshold(double thr) { config_.SetActivateThreshold(thr); }
 
  private:
-  Vector ExpectedOutput(const Image& image);
-  void Report(const std::size_t epoch, const std::size_t fold_index);
+  Vector ExpectedOutput(const Image&);
+  void Report();
   void TrainEpochs();
   void CrossValidate();
 

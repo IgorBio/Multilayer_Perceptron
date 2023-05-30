@@ -7,6 +7,9 @@
 
 namespace s21 {
 
+using Weigths = std::vector<Matrix>;
+using Values = std::vector<Matrix>;
+
 class MatrixMlp : public Interface {
  public:
   explicit MatrixMlp(Topology);
@@ -17,16 +20,15 @@ class MatrixMlp : public Interface {
   double CalculateLoss(const Vector &, const Vector &) override;
   Vector Predict(const Vector &) override;
   Vector GetOutput() const override;
-  Vector GetWeights() const override;
-  void SetWeights(const Vector &) override;
+  Weigths GetWeights() const override;
+  void SetWeights(const Weigths &) override;
 
  private:
   void AddLayer(std::size_t, std::size_t);
   void UpdateLayer(const Matrix &, double, std::size_t);
 
-  std::vector<Matrix> weights_;
-  std::vector<Matrix> neurons_;
-  std::vector<Matrix> bias_;
+  Weigths weights_;
+  Values values_;
 };
 }  // namespace s21
 

@@ -2,7 +2,8 @@
 
 namespace s21 {
 
-MLP::MLP(const Topology topology) : topology_{topology} {
+MLP::MLP(const Topology topology)
+    : topology_{topology}, metrics_{topology_.GetOutputSize()} {
   mlp_ = std::make_unique<MatrixMlp>(topology_);
 }
 
@@ -15,30 +16,68 @@ void MLP::Train() {
 }
 
 void MLP::TrainEpochs() {
-  auto start_time = std::chrono::steady_clock::now();
   for (std::size_t epoch{0u}; epoch < config_.GetEpochs(); ++epoch) {
-    double total_loss{0.0};
     std::random_shuffle(train_.begin(), train_.end());
+    auto start_time = std::chrono::steady_clock::now();
     for (const Image& image : train_) {
       mlp_->SetInputLayer(image.GetPixels());
       mlp_->ForwardPropagation();
       Vector expected_output = ExpectedOutput(image);
-      Vector predicted_output = mlp_->GetOutput();
-      total_loss += mlp_->CalculateLoss(predicted_output, expected_output);
       mlp_->BackPropagation(expected_output, config_.GetLearningRate());
     }
-    metrics_.time = std::chrono::duration_cast<std::chrono::seconds>(
-                        std::chrono::steady_clock::now() - start_time)
-                        .count();
-    metrics_.loss = total_loss / static_cast<double>(train_.size());
-    if (config_.GetVerbose()) Report(epoch, {});
+
+    auto end_time = std::chrono::steady_clock::now();
+    long long epoch_time =
+        std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time)
+            .count();
+    std::cout << "Epoch: " << epoch + 1 << std::endl;
+    double average_epoch_time =
+        static_cast<double>(epoch_time) / static_cast<double>(epoch + 1);
+    long long remaining_time = static_cast<long long>(
+        (config_.GetEpochs() - epoch - 1) * average_epoch_time);
+    std::cout << "\nTime Elapsed: " << epoch_time << " seconds\n";
+    std::cout << "Time Remaining: " << remaining_time << " seconds\n\n";
+    Test();
   }
+}
+
+void MLP::Test() {
+  auto start_time = std::chrono::steady_clock::now();
+  std::vector<std::size_t> indices(test_.size());
+  std::iota(indices.begin(), indices.end(), 0u);
+  std::random_shuffle(indices.begin(), indices.end());
+  std::size_t test_size = test_.size() * config_.GetTestSample();
+  Dataset test;
+  for (std::size_t i{0u}; i < test_size; ++i) {
+    test.push_back(test_[indices[i]]);
+  }
+  double total_loss = 0.0;
+  for (const Image& image : test) {
+    mlp_->SetInputLayer(image.GetPixels());
+    mlp_->ForwardPropagation();
+    Vector expected_output = ExpectedOutput(image);
+    Vector predicted_output = mlp_->GetOutput();
+    total_loss += mlp_->CalculateLoss(predicted_output, expected_output);
+    std::size_t predicted_label = PredictLabel(image);
+    std::size_t true_label = image.GetLabel();
+    if (predicted_label == true_label) {
+      metrics_.AddTruePositive(true_label);
+    } else {
+      metrics_.AddFalsePositive(predicted_label);
+      metrics_.AddFalseNegative(true_label);
+    }
+  }
+  auto end_time = std::chrono::steady_clock::now();
+  metrics_.SetTime(
+      std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time)
+          .count());
+  metrics_.SetLoss(total_loss / test.size());
+  if (config_.GetVerbose()) Report();
 }
 
 void MLP::CrossValidate() {
   auto start_time = std::chrono::steady_clock::now();
   std::vector<Dataset> folds(config_.GetKFolds());
-  // std::size_t fold_size = train_.size() / config_.GetKFolds();
   std::vector<std::size_t> indices(train_.size());
   std::iota(indices.begin(), indices.end(), 0u);
   std::random_shuffle(indices.begin(), indices.end());
@@ -70,12 +109,7 @@ void MLP::CrossValidate() {
 
         mlp_->BackPropagation(expected_output, config_.GetLearningRate());
       }
-
-      metrics_.time = std::chrono::duration_cast<std::chrono::seconds>(
-                          std::chrono::steady_clock::now() - start_time)
-                          .count();
-      metrics_.loss = total_loss;
-      if (config_.GetVerbose()) Report(epoch, fold_index);
+      if (config_.GetVerbose()) Report();
     }
   }
 }
@@ -86,15 +120,14 @@ void MLP::CrossValidate() {
  * @param epoch The current epoch number.
  * @param fold_index The index of the current fold (if using cross-validation).
  */
-void MLP::Report(const std::size_t epoch, const std::size_t fold_index) {
-  std::string fold_info;
-  if (config_.GetTrainType() == Config::TrainType::kCrossValidation) {
-    fold_info = " (fold " + std::to_string(fold_index + 1) + ")";
-  }
-
-  std::cout << "Epoch " << epoch + 1 << fold_info << ":\n"
-            << "\tTime: " << metrics_.time << " sec\n"
-            << "\tLoss: " << metrics_.loss << std::endl;
+void MLP::Report() {
+  std::cout << "Test on " << config_.GetTestSample() * 100 << " %\n";
+  std::cout << "\tLoss: " << metrics_.GetLoss() << std::endl;
+  std::cout << "\tAccuracy: " << metrics_.GetAccuracy() << std::endl;
+  std::cout << "\tPrecision: " << metrics_.GetPrecision() << std::endl;
+  std::cout << "\tRecall: " << metrics_.GetRecall() << std::endl;
+  std::cout << "\tF1 Score: " << metrics_.GetF1Score() << std::endl;
+  std::cout << "\tTotal time: " << metrics_.GetTime() << std::endl;
 }
 
 Vector MLP::ExpectedOutput(const Image& image) {
@@ -103,9 +136,15 @@ Vector MLP::ExpectedOutput(const Image& image) {
   return expected_output;
 }
 
+Vector MLP::Predict(const Vector& vector) { return mlp_->Predict(vector); }
+
+char MLP::Predict(const Image& image) {
+  return static_cast<char>(PredictLabel(image) - 1) + 'A';
+}
+
 std::size_t MLP::PredictLabel(const Image& image) {
   Vector vector = image.GetPixels();
-  Vector output = mlp_->Predict(vector);
+  Vector output = Predict(vector);
   auto it = std::max_element(output.begin(), output.end());
   return std::distance(output.begin(), it);
 }
@@ -118,5 +157,17 @@ void MLP::SetType(Config::ModelType type) {
     mlp_ = std::make_unique<GraphMlp>(topology_);
   }
 }
+
+void MLP::Save() {
+  std::stringstream ss;
+  ss << "./weights/w_" << topology_.GetLayersCount() << "l_"
+     << config_.GetEpochs() << "e_" << metrics_.GetLoss() << "loss";
+  auto time = std::time(nullptr);
+  ss << "_" << std::put_time(std::localtime(&time), "%Y-%m-%d_%H-%M") << ".bin";
+
+  SaveWeights(GetWeights(), ss.str());
+}
+
+void MLP::Load(const std::string& path) { mlp_->SetWeights(LoadWeights(path)); }
 
 }  // namespace s21

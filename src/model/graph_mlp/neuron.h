@@ -18,6 +18,7 @@ class Neuron {
   void SetBias(double bias) { bias_ = bias; }
   double GetBias() const { return bias_; }
   Vector& GetWeights() { return weights_; }
+  void SetWeights(const Vector& weights) { weights_ = weights; }
   void Update(const Vector& errors, double learning_rate) {
 #pragma omp parallel for
     for (std::size_t i = 0u; i < weights_.size(); ++i)

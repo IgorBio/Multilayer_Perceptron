@@ -21,6 +21,13 @@ class Layer {
   }
 
   Neurons& GetLayer() { return layer_; }
+  void SetLayer(const Matrix& neurons) {
+    for (std::size_t i = 0u; i < layer_.size(); ++i) {
+      auto& neuron = *layer_[i];
+      const Vector& weights = neurons[i];
+      neuron.SetWeights(weights);
+    }
+  }
   Matrix CalculateLoss(const Vector& expected) const {
     Matrix error(layer_.size(), Vector(expected.size()));
 #pragma omp parallel for

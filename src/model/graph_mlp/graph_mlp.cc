@@ -149,29 +149,24 @@ Vector GraphMlp::GetOutput() const {
   return output;
 }
 
-Vector GraphMlp::GetWeights() const {
-  Vector weights;
+Weigths GraphMlp::GetWeights() const {
+  Weigths weights;
   for (const auto& layer : net_) {
+    Matrix layer_weights;
     for (const auto& neuron : layer->GetLayer()) {
-      const auto& neuron_weights = neuron->GetWeights();
-      weights.insert(weights.end(), neuron_weights.cbegin(),
-                     neuron_weights.cend());
-      weights.push_back(neuron->GetBias());
+      Vector neuron_weights = neuron->GetWeights();
+      layer_weights.push_back(neuron_weights);
     }
+    weights.push_back(layer_weights);
   }
   return weights;
 }
 
-void GraphMlp::SetWeights(const Vector& weights) {
-  std::size_t index{0u};
-  for (auto& layer : net_) {
-    for (auto& neuron : layer->GetLayer()) {
-      auto& neuron_weights = neuron->GetWeights();
-      std::copy_n(weights.begin() + index, neuron_weights.size(),
-                  neuron_weights.begin());
-      index += neuron_weights.size();
-      neuron->SetBias(weights[index++]);
-    }
+void GraphMlp::SetWeights(const Weigths& weights) {
+  net_.resize(weights.size());
+  for (std::size_t i{0u}; i < net_.size(); ++i) {
+    auto& layer = *net_[i];
+    layer.SetLayer(weights[i]);
   }
 }
 

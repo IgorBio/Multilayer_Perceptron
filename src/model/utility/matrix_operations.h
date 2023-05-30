@@ -2,7 +2,6 @@
 #define MLP_MODEL_UTILITY_MATRIX_OPERATIONS_H_
 
 #include <algorithm>
-#include <future>
 #include <iostream>
 #include <random>
 #include <stdexcept>
@@ -13,12 +12,12 @@
 
 namespace s21 {
 
-// Use Winograd algorithm for large matrices to improve performance.
-constexpr int kWinogradThreshold = 200;
-
 using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
 using Threads = std::vector<std::thread>;
+
+// Use Winograd algorithm for large matrices to improve performance.
+constexpr int kWinogradThreshold = 200;
 
 template <typename Op>
 Matrix BinaryOp(const Matrix &, const Matrix &, Op);

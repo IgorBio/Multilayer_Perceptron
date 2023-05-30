@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "image.h"
+#include "../image.h"
 
 namespace s21 {
 
