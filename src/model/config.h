@@ -10,6 +10,7 @@ class Topology {
  public:
   Topology() : sizes_{784, 100, 100, 26} {}
   explicit Topology(std::initializer_list<std::size_t> sizes) : sizes_{sizes} {}
+  explicit Topology(std::vector<std::size_t> sizes) : sizes_{sizes} {}
 
   std::size_t GetInputSize() const { return sizes_.front(); }
   void SetInputSize(std::size_t size) { sizes_.front() = size; }
@@ -26,6 +27,8 @@ class Topology {
   void SetLayerSize(std::size_t size, std::size_t idx) { sizes_[idx] = size; }
 
   std::size_t GetLastHidden() const { return sizes_[sizes_.size() - 2]; }
+
+  void SetTopology(std::vector<std::size_t> sizes) { sizes_ = sizes; }
 
  private:
   std::vector<std::size_t> sizes_;

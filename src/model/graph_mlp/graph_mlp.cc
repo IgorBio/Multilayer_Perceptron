@@ -149,8 +149,8 @@ Vector GraphMlp::GetOutput() const {
   return output;
 }
 
-Weigths GraphMlp::GetWeights() const {
-  Weigths weights;
+Weights GraphMlp::GetWeights() const {
+  Weights weights;
   for (const auto& layer : net_) {
     Matrix layer_weights;
     for (const auto& neuron : layer->GetLayer()) {
@@ -162,7 +162,7 @@ Weigths GraphMlp::GetWeights() const {
   return weights;
 }
 
-void GraphMlp::SetWeights(const Weigths& weights) {
+void GraphMlp::SetWeights(const Weights& weights) {
   net_.resize(weights.size());
   for (std::size_t i{0u}; i < net_.size(); ++i) {
     auto& layer = *net_[i];

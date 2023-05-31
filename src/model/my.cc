@@ -16,7 +16,7 @@ int main() {
   mlp.Load("./weights/w_4l_3e_0.149253loss_2023-05-30_10-48.bin");
   mlp.SetVerbose(true);
   mlp.SetEpochs(3);
-  // mlp.SetTestSample(0.2);
+  mlp.SetTestSample(0.2);
   // mlp.SetTrainType(Config::TrainType::kCrossValidation);
   // mlp.SetTestDataset("../datasets/emnist-letters/emnist-letters-test.csv");
   // mlp.Train();

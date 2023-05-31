@@ -18,46 +18,52 @@ void MLP::Train() {
 void MLP::TrainEpochs() {
   for (std::size_t epoch{0u}; epoch < config_.GetEpochs(); ++epoch) {
     std::random_shuffle(train_.begin(), train_.end());
+
     auto start_time = std::chrono::steady_clock::now();
+
     for (const Image& image : train_) {
       mlp_->SetInputLayer(image.GetPixels());
       mlp_->ForwardPropagation();
-      Vector expected_output = ExpectedOutput(image);
+      const Vector expected_output = ExpectedOutput(image);
       mlp_->BackPropagation(expected_output, config_.GetLearningRate());
     }
 
     auto end_time = std::chrono::steady_clock::now();
-    long long epoch_time =
+    auto epoch_time =
         std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time)
             .count();
-    std::cout << "Epoch: " << epoch + 1 << std::endl;
     double average_epoch_time =
         static_cast<double>(epoch_time) / static_cast<double>(epoch + 1);
-    long long remaining_time = static_cast<long long>(
+    auto remaining_time = static_cast<long long>(
         (config_.GetEpochs() - epoch - 1) * average_epoch_time);
-    std::cout << "\nTime Elapsed: " << epoch_time << " seconds\n";
-    std::cout << "Time Remaining: " << remaining_time << " seconds\n\n";
+    if (config_.GetVerbose()) {
+      std::cout << "Epoch: " << epoch + 1 << std::endl;
+      std::cout << "\nTime Elapsed: " << epoch_time << " seconds\n";
+      std::cout << "Time Remaining: " << remaining_time << " seconds\n\n";
+    }
     Test();
   }
 }
 
 void MLP::Test() {
   auto start_time = std::chrono::steady_clock::now();
+
   std::vector<std::size_t> indices(test_.size());
   std::iota(indices.begin(), indices.end(), 0u);
   std::random_shuffle(indices.begin(), indices.end());
-  std::size_t test_size = test_.size() * config_.GetTestSample();
-  Dataset test;
-  for (std::size_t i{0u}; i < test_size; ++i) {
-    test.push_back(test_[indices[i]]);
-  }
+  std::size_t test_size =
+      static_cast<std::size_t>(test_.size() * config_.GetTestSample());
+
   double total_loss = 0.0;
-  for (const Image& image : test) {
+  for (std::size_t i{0u}; i < test_size; ++i) {
+    const Image& image = test_[indices[i]];
     mlp_->SetInputLayer(image.GetPixels());
     mlp_->ForwardPropagation();
     Vector expected_output = ExpectedOutput(image);
     Vector predicted_output = mlp_->GetOutput();
+
     total_loss += mlp_->CalculateLoss(predicted_output, expected_output);
+
     std::size_t predicted_label = PredictLabel(image);
     std::size_t true_label = image.GetLabel();
     if (predicted_label == true_label) {
@@ -71,12 +77,12 @@ void MLP::Test() {
   metrics_.SetTime(
       std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time)
           .count());
-  metrics_.SetLoss(total_loss / test.size());
+  metrics_.SetLoss(total_loss / test_size);
   if (config_.GetVerbose()) Report();
 }
 
 void MLP::CrossValidate() {
-  auto start_time = std::chrono::steady_clock::now();
+  // auto start_time = std::chrono::steady_clock::now();
   std::vector<Dataset> folds(config_.GetKFolds());
   std::vector<std::size_t> indices(train_.size());
   std::iota(indices.begin(), indices.end(), 0u);
@@ -168,6 +174,25 @@ void MLP::Save() {
   SaveWeights(GetWeights(), ss.str());
 }
 
-void MLP::Load(const std::string& path) { mlp_->SetWeights(LoadWeights(path)); }
+void MLP::Load(const std::string& path) {
+  Weights weights = LoadWeights(path);
+  UpdateTopology(weights);
+  mlp_->SetWeights(weights);
+}
+
+void MLP::UpdateTopology(Weights& weights) {
+  std::vector<std::size_t> layer_sizes;
+  layer_sizes.push_back(weights[0][0].size());
+  for (std::size_t i{0}; i < weights.size(); ++i) {
+    layer_sizes.push_back(weights[i][1].size());
+  }
+  topology_ = Topology{layer_sizes};
+  if (config_.GetModelType() == Config::ModelType::kMatrix) {
+    mlp_ = std::make_unique<MatrixMlp>(topology_);
+  } else if (config_.GetModelType() == Config::ModelType::kGraph) {
+    mlp_ = std::make_unique<GraphMlp>(topology_);
+  }
+  metrics_ = Metrics{topology_.GetOutputSize()};
+}
 
 }  // namespace s21

@@ -7,7 +7,6 @@
 
 namespace s21 {
 
-using Weigths = std::vector<Matrix>;
 using Values = std::vector<Matrix>;
 
 class MatrixMlp : public Interface {
@@ -20,14 +19,14 @@ class MatrixMlp : public Interface {
   double CalculateLoss(const Vector &, const Vector &) override;
   Vector Predict(const Vector &) override;
   Vector GetOutput() const override;
-  Weigths GetWeights() const override;
-  void SetWeights(const Weigths &) override;
+  Weights GetWeights() const override;
+  void SetWeights(const Weights &) override;
 
  private:
   void AddLayer(std::size_t, std::size_t);
   void UpdateLayer(const Matrix &, double, std::size_t);
 
-  Weigths weights_;
+  Weights weights_;
   Values values_;
 };
 }  // namespace s21

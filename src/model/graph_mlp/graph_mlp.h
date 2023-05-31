@@ -8,8 +8,6 @@
 namespace s21 {
 
 using Net = std::vector<std::unique_ptr<Layer>>;
-using Weigths = std::vector<Matrix>;
-using Values = std::vector<Matrix>;
 
 class GraphMlp : public Interface {
  public:
@@ -21,8 +19,8 @@ class GraphMlp : public Interface {
   double CalculateLoss(const Vector &, const Vector &) override;
   Vector Predict(const Vector &) override;
   Vector GetOutput() const override;
-  Weigths GetWeights() const override;
-  void SetWeights(const Weigths &) override;
+  Weights GetWeights() const override;
+  void SetWeights(const Weights &) override;
 
  private:
   void AddLayer(std::size_t, std::size_t);
