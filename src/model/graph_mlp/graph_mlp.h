@@ -19,8 +19,8 @@ class GraphMlp : public Interface {
   double CalculateLoss(const Vector &, const Vector &) override;
   Vector Predict(const Vector &) override;
   Vector GetOutput() const override;
-  Weights GetWeights() const override;
-  void SetWeights(const Weights &) override;
+  Tensor GetWeights() const override;
+  void SetWeights(const Tensor &) override;
 
  private:
   void AddLayer(std::size_t, std::size_t);

@@ -23,7 +23,7 @@ class MLP {
   void Save();
   void Load(const std::string& path);
 
-  Weights GetWeights() const { return mlp_->GetWeights(); }
+  Tensor GetWeights() const { return mlp_->GetWeights(); }
 
   void SetTrainDataset(const std::string& path) { train_ = ParseEmnist(path); }
   void SetTrainDataset(const Dataset& dataset) { train_ = dataset; };
@@ -46,7 +46,7 @@ class MLP {
   void Report();
   void TrainEpochs();
   void CrossValidate();
-  void UpdateTopology(Weights&);
+  void UpdateTopology(Tensor&);
 
   Config config_;
   Topology topology_;

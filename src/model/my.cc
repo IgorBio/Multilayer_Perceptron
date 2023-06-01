@@ -8,18 +8,18 @@
 using namespace s21;
 
 int main() {
-  Topology topology;
+  Topology topology{784, 100, 140, 100, 140, 100, 26};
 
   MLP mlp{topology};
   mlp.SetTrainDataset("../datasets/emnist-letters/emnist-letters-train.csv");
   mlp.SetTestDataset("../datasets/emnist-letters/emnist-letters-test.csv");
-  mlp.Load("./weights/w_4l_3e_0.149253loss_2023-05-30_10-48.bin");
+  // mlp.Load("./weights/w_4l_3e_0.149253loss_2023-05-30_10-48.bin");
   mlp.SetVerbose(true);
-  mlp.SetEpochs(3);
+  mlp.SetEpochs(1);
   mlp.SetTestSample(0.2);
   // mlp.SetTrainType(Config::TrainType::kCrossValidation);
   // mlp.SetTestDataset("../datasets/emnist-letters/emnist-letters-test.csv");
-  // mlp.Train();
+  mlp.Train();
   mlp.Test();
 
   Image image = Image(

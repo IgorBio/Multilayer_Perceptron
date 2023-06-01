@@ -7,7 +7,7 @@ namespace s21 {
 
 using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
-using Weights = std::vector<Matrix>;
+using Tensor = std::vector<Matrix>;
 
 class Interface {
  public:
@@ -19,8 +19,8 @@ class Interface {
   virtual double CalculateLoss(const Vector &, const Vector &) = 0;
   virtual Vector Predict(const Vector &) = 0;
   virtual Vector GetOutput() const = 0;
-  virtual Weights GetWeights() const = 0;
-  virtual void SetWeights(const Weights &) = 0;
+  virtual Tensor GetWeights() const = 0;
+  virtual void SetWeights(const Tensor &) = 0;
 };
 }  // namespace s21
 

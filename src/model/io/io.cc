@@ -24,7 +24,7 @@ Dataset ParseEmnist(const std::string& path) {
   return dataset;
 }
 
-void SaveWeights(const Weigths& weights, const std::string& path) {
+void SaveWeights(const Tensor& weights, const std::string& path) {
   std::ofstream file(path, std::ios::binary);
   if (!file.is_open()) {
     throw std::runtime_error("Failed to open file: " + path);
@@ -50,7 +50,7 @@ void SaveWeights(const Weigths& weights, const std::string& path) {
   }
 }
 
-Weigths LoadWeights(const std::string& path) {
+Tensor LoadWeights(const std::string& path) {
   std::ifstream file(path, std::ios::binary);
   if (!file.is_open()) {
     throw std::runtime_error("Failed to open file: " + path);
@@ -61,7 +61,7 @@ Weigths LoadWeights(const std::string& path) {
   file.read(reinterpret_cast<char*>(&num_layers), sizeof(num_layers));
 
   // read each layer's weights
-  Weigths weights(num_layers);
+  Tensor weights(num_layers);
   for (std::size_t i{0}; i < num_layers; ++i) {
     // read the dimensions of the weight matrix
     std::size_t rows, cols;

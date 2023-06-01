@@ -67,8 +67,8 @@ Vector MatrixMlp::GetOutput() const {
   return Vector{output_matrix.front().cbegin(), output_matrix.front().cend()};
 }
 
-Weights MatrixMlp::GetWeights() const { return weights_; }
+Tensor MatrixMlp::GetWeights() const { return weights_; }
 
-void MatrixMlp::SetWeights(const Weights &weights) { weights_ = weights; }
+void MatrixMlp::SetWeights(const Tensor &weights) { weights_ = weights; }
 
 }  // namespace s21

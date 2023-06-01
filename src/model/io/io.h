@@ -12,12 +12,12 @@ namespace s21 {
 
 using Vector = std::vector<double>;
 using Matrix = std::vector<Vector>;
+using Tensor = std::vector<Matrix>;
 using Dataset = std::vector<Image>;
-using Weigths = std::vector<Matrix>;
 
 Dataset ParseEmnist(const std::string& path);
-void SaveWeights(const Weigths& weights, const std::string& path);
-Weigths LoadWeights(const std::string& path);
+void SaveWeights(const Tensor& weights, const std::string& path);
+Tensor LoadWeights(const std::string& path);
 
 }  // namespace s21
 

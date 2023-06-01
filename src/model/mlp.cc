@@ -175,12 +175,12 @@ void MLP::Save() {
 }
 
 void MLP::Load(const std::string& path) {
-  Weights weights = LoadWeights(path);
+  Tensor weights = LoadWeights(path);
   UpdateTopology(weights);
   mlp_->SetWeights(weights);
 }
 
-void MLP::UpdateTopology(Weights& weights) {
+void MLP::UpdateTopology(Tensor& weights) {
   std::vector<std::size_t> layer_sizes;
   layer_sizes.push_back(weights[0][0].size());
   for (std::size_t i{0}; i < weights.size(); ++i) {
