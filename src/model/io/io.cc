@@ -19,9 +19,9 @@ Dataset ParseEmnist(const std::string& path) {
       std::getline(iss, token, ',');
       image.AddPixel(static_cast<double>(std::stoi(token)) / Image::kMaxPixel);
     }
-    dataset.push_back(image);
+    dataset.push_back(std::move(image));
   }
-  return dataset;
+  return std::move(dataset);
 }
 
 void SaveWeights(const Tensor& weights, const std::string& path) {

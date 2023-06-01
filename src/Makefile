@@ -100,7 +100,7 @@ else
 endif
 
 my:
-	@g++ ./model/my.cc $(SOURCES) $(OPENMP)  && ./a.out
+	@g++ ./model/my.cc $(SOURCES) $(OPENMP) -O3  && ./a.out
 
 speed:
 	@$(CC) ./tests/speed_matrix_ops.cc ./model/utility/matrix_operations.cc $(OPENMP) && ./a.out

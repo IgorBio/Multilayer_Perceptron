@@ -17,7 +17,7 @@ void MLP::Train() {
 
 void MLP::TrainEpochs() {
   for (std::size_t epoch{0u}; epoch < config_.GetEpochs(); ++epoch) {
-    std::random_shuffle(train_.begin(), train_.end());
+    std::shuffle(train_.begin(), train_.end(), std::default_random_engine());
 
     auto start_time = std::chrono::steady_clock::now();
 
@@ -27,7 +27,6 @@ void MLP::TrainEpochs() {
       const Vector expected_output = ExpectedOutput(image);
       mlp_->BackPropagation(expected_output, config_.GetLearningRate());
     }
-
     auto end_time = std::chrono::steady_clock::now();
     auto epoch_time =
         std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time)
@@ -49,7 +48,7 @@ void MLP::Test() {
 
   std::vector<std::size_t> indices(test_.size());
   std::iota(indices.begin(), indices.end(), 0u);
-  std::random_shuffle(indices.begin(), indices.end());
+  std::shuffle(indices.begin(), indices.end(), std::default_random_engine());
   std::size_t test_size =
       static_cast<std::size_t>(test_.size() * config_.GetTestSample());
 
@@ -85,7 +84,7 @@ void MLP::CrossValidate() {
   std::vector<Dataset> folds(config_.GetKFolds());
   std::vector<std::size_t> indices(train_.size());
   std::iota(indices.begin(), indices.end(), 0u);
-  std::random_shuffle(indices.begin(), indices.end());
+  std::shuffle(indices.begin(), indices.end(), std::default_random_engine());
   for (std::size_t i{0u}; i < indices.size(); ++i) {
     folds[i % config_.GetKFolds()].push_back(train_[indices[i]]);
   }
@@ -102,7 +101,8 @@ void MLP::CrossValidate() {
         }
       }
 
-      std::random_shuffle(train_fold.begin(), train_fold.end());
+      std::shuffle(train_fold.begin(), train_fold.end(),
+                   std::default_random_engine());
       for (const Image& image : train_fold) {
         mlp_->SetInputLayer(image.GetPixels());
         mlp_->ForwardPropagation();
@@ -132,26 +132,26 @@ void MLP::Report() {
   std::cout << "\tPrecision: " << metrics_.GetPrecision() << std::endl;
   std::cout << "\tRecall: " << metrics_.GetRecall() << std::endl;
   std::cout << "\tF1 Score: " << metrics_.GetF1Score() << std::endl;
-  std::cout << "\tTotal time: " << metrics_.GetTime() << std::endl;
+  std::cout << "\tTotal time: " << metrics_.GetTime() << " seconds\n";
 }
 
 Vector MLP::ExpectedOutput(const Image& image) {
   Vector expected_output(topology_.GetOutputSize(), 0.0);
-  expected_output[image.GetLabel()] = 1.0;
+  expected_output[image.GetLabel() - 1] = 1.0;
   return expected_output;
 }
 
 Vector MLP::Predict(const Vector& vector) { return mlp_->Predict(vector); }
 
 char MLP::Predict(const Image& image) {
-  return static_cast<char>(PredictLabel(image) - 1) + 'A';
+  return static_cast<char>(PredictLabel(image) + 'A' - 1);
 }
 
 std::size_t MLP::PredictLabel(const Image& image) {
-  Vector vector = image.GetPixels();
-  Vector output = Predict(vector);
-  auto it = std::max_element(output.begin(), output.end());
-  return std::distance(output.begin(), it);
+  Vector input = image.GetPixels();
+  Vector predicted = Predict(input);
+  auto it = std::max_element(predicted.begin(), predicted.end());
+  return std::distance(predicted.begin(), it) + 1;
 }
 
 void MLP::SetType(Config::ModelType type) {

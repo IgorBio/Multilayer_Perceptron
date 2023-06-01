@@ -25,10 +25,10 @@ TEST(MLP, XOR) {
   train.push_back({{1, 0}, {1}});
   train.push_back({{1, 1}, {0}});
 
-  Topology topology{2, 10, 2};
+  Topology topology{2, 4, 2};
   MLP mlp(topology);
   mlp.SetTrainDataset(train);
-  mlp.SetEpochs(10000);
+  mlp.SetEpochs(3000);
   mlp.SetLearningRate(0.1);
 
   mlp.Train();
