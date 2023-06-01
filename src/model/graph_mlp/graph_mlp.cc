@@ -121,8 +121,7 @@ void GraphMlp::BackPropagation(const Vector& expected_output,
     // Calculate the error for this layer
     const Matrix& current_values = current_layer.GetValues();
     const Matrix& next_weights = next_layer.GetWeights();
-    Matrix current_error =
-        current_layer.CalculateLoss(next_weights, next_layer.GetLayerError());
+    Matrix current_error = current_layer.CalculateLoss(expected_output);  // FIX
 
     // Update the weights for this layer
     current_layer.UpdateLayer(current_error, learning_rate);

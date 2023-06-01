@@ -13,12 +13,11 @@ int main() {
   MLP mlp{topology};
   mlp.SetTrainDataset("../datasets/emnist-letters/emnist-letters-train.csv");
   mlp.SetTestDataset("../datasets/emnist-letters/emnist-letters-test.csv");
-  // mlp.Load("./weights/w_4l_3e_0.149253loss_2023-05-30_10-48.bin");
+  mlp.Load("./weights/w_7l_1e_0.374324loss_2023-06-01_13-24.bin");
   mlp.SetVerbose(true);
   mlp.SetEpochs(1);
   mlp.SetTestSample(0.2);
   // mlp.SetTrainType(Config::TrainType::kCrossValidation);
-  // mlp.SetTestDataset("../datasets/emnist-letters/emnist-letters-test.csv");
   mlp.Train();
   mlp.Test();
 

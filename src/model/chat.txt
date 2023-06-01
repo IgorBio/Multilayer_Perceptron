@@ -1,0 +1,140 @@
+Please, implement method UpdateWeights in class Neuron
+
+Please, refactor methods, members and naming of classes in more fast, concise and beautiful way with following the Google style
+
+which members needs to be added into classes Neuron and Layer?
+
+Please, add Doxygen-style comments that document the behavior and parameters to PrintVector
+
+Please, implement test-cases using Google Test framework which helps to check correcness of calculates in class MLP for classification use-case
+
+Please, implement class Metrics which calculates accuracy, precision, recall, f1_score, loss, total time spent on train and other needed classification metrics in fast, concise and beautiful way with following the Google style
+
+Please, implement methods GetValues, SetValues, GetWeights and SetWeights in class Layer in fast, concise and beautiful way with following the Google style
+
+using Vector = std::vector<double>;
+using Matrix = std::vector<Vector>;
+using Tensor = std::vector<Matrix>;
+using Threads = std::vector<std::thread>;
+using Net = std::vector<std::unique_ptr<Layer>>;
+using Neurons = std::vector<std::unique_ptr<Neuron>>;
+
+class Interface {
+ public:
+  virtual ~Interface() {}
+
+  virtual void SetInputLayer(const Vector &) = 0;
+  virtual void ForwardPropagation() = 0;
+  virtual void BackPropagation(const Vector &, double) = 0;
+  virtual double CalculateLoss(const Vector &, const Vector &) = 0;
+  virtual Vector Predict(const Vector &) = 0;
+  virtual Vector GetOutput() const = 0;
+  virtual Tensor GetWeights() const = 0;
+  virtual void SetWeights(const Tensor &) = 0;
+};
+
+class GraphMlp : public Interface {
+ public:
+  explicit GraphMlp(Topology);
+
+  void SetInputLayer(const Vector &) override;
+  void ForwardPropagation() override;
+  void BackPropagation(const Vector &, double) override;
+  double CalculateLoss(const Vector &, const Vector &) override;
+  Vector Predict(const Vector &) override;
+  Vector GetOutput() const override;
+  Tensor GetWeights() const override;
+  void SetWeights(const Tensor &) override;
+
+ private:
+  void AddLayer(std::size_t, std::size_t);
+  void UpdateLayer(const Matrix &, double, std::size_t);
+
+  Net net_;
+};
+
+class Layer {
+ public:
+  explicit Layer(std::size_t input_size, std::size_t output_size)
+      : layer_(output_size) {
+    std::generate(layer_.begin(), layer_.end(), [&input_size]() {
+      return std::make_unique<Neuron>(input_size);
+    });
+  }
+
+  Neurons& GetLayer() { return layer_; }
+  void SetLayer(const Matrix& neurons) {
+    for (std::size_t i = 0u; i < layer_.size(); ++i) {
+      auto& neuron = *layer_[i];
+      const Vector& weights = neurons[i];
+      neuron.SetWeights(weights);
+    }
+  }
+  Matrix CalculateLoss(const Vector& expected) const {
+    Matrix error(layer_.size(), Vector(expected.size()));
+#pragma omp parallel for
+    for (std::size_t i = 0u; i < layer_.size(); ++i) {
+      auto& neuron = *layer_[i];
+      for (std::size_t j{0u}; j < expected.size(); ++j) {
+        error[i][j] = expected[j] - neuron.GetValue();
+      }
+    }
+    return error;
+  }
+  void UpdateLayer(const Matrix errors, double learning_rate) {
+#pragma omp parallel for
+    for (std::size_t i = 0u; i < layer_.size(); ++i) {
+      auto& neuron = *layer_[i];
+      neuron.Update(errors[i], learning_rate);
+    }
+  }
+
+ private:
+  Neurons layer_;
+};
+
+class Neuron {
+ public:
+  explicit Neuron(std::size_t layer_size) : value_{0.0}, weights_(layer_size) {
+    std::generate(weights_.begin(), weights_.end(), RandomWeight);
+  }
+
+  void SetValue(double value) { value_ = value; }
+  double GetValue() const { return value_; }
+  Vector& GetWeights() { return weights_; }
+  void SetWeights(const Vector& weights) { weights_ = weights; }
+  void Update(const Vector& errors, double learning_rate) {
+#pragma omp parallel for
+    for (std::size_t i = 0u; i < weights_.size(); ++i)
+      weights_[i] += learning_rate * errors[i] * value_;
+  }
+
+ private:
+  double value_;
+  Vector weights_;
+};
+
+using activation_func = double (*)(double);
+using activation_derivative = double (*)(double);
+
+// Activation functions
+constexpr double sigmoid(double x) { return 1.0 / (1.0 + std::exp(-x)); }
+constexpr double tanh(double x) { return std::tanh(x); }
+constexpr double relu(double x) { return (x > 0.0) ? x : 0.0; }
+
+// Activation function derivatives
+constexpr double sigmoid_derivative(double x) { return x * (1.0 - x); }
+constexpr double tanh_derivative(double x) {
+  return 1.0 - std::tanh(x) * std::tanh(x);
+}
+constexpr double relu_derivative(double x) { return (x > 0.0) ? 1.0 : 0.0; }
+
+// Apply an activation function to a single value
+inline double ApplyActivation(double x, activation_func func) {
+  return (*func)(x);
+}
+
+// Apply derivative of an activation function to a single value
+inline double ApplyActivationDerivative(double x, activation_derivative func) {
+  return (*func)(x);
+}

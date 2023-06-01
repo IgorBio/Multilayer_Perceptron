@@ -41,7 +41,6 @@ void MLP::TrainEpochs() {
       std::cout << "\nTime Elapsed: " << epoch_time << " seconds\n";
       std::cout << "Time Remaining: " << remaining_time << " seconds\n\n";
     }
-    Test();
   }
 }
 
