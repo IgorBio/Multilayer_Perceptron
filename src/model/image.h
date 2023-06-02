@@ -22,7 +22,7 @@ class Image {
   void SetLabel(std::size_t label) { label_ = label; }
   const Pixels& GetPixels() const { return pixels_; }
   void AddPixel(double pixel) { pixels_.push_back(pixel); }
-  char GetLetter() { return static_cast<char>(label_) - 1 + 'A'; }
+  char GetLetter() { return static_cast<char>(label_) + 'A' - 1; }
 
   void Normalize() {
     std::transform(pixels_.begin(), pixels_.end(), pixels_.begin(),

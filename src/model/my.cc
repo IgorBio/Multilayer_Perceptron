@@ -11,16 +11,18 @@ int main() {
   Topology topology{784, 100, 140, 100, 140, 100, 26};
 
   MLP mlp{topology};
-  mlp.SetTrainDataset("../datasets/emnist-letters/emnist-letters-train.csv");
+  // mlp.SetTrainDataset("../datasets/emnist-letters/emnist-letters-train.csv");
   // mlp.SetTrainDataset(
   //     "../datasets/emnist-letters/emnist-letters-train-sample.csv");
   mlp.SetTestDataset("../datasets/emnist-letters/emnist-letters-test.csv");
-  mlp.Load("./weights/w_7l_1e_0.286529loss_2023-06-01_19-35.bin");
+  mlp.Load("./weights/w_7layers_0.2127loss_0.768acc.bin");
   mlp.SetVerbose(true);
-  mlp.SetEpochs(1);
+  // mlp.SetEpochs(5);
+  // mlp.SetLearningRate(0.005);
   // mlp.SetTestSample(0.2);
   // mlp.SetTrainType(Config::TrainType::kCrossValidation);
-  mlp.Train();
+  // mlp.Train();
+  // mlp.Save();
   mlp.Test();
   Image image = Image(
       {0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
@@ -85,6 +87,5 @@ int main() {
   PrintVector(mlp.Predict(image.GetPixels()));
   std::cout << "Predicted Label: " << mlp.PredictLabel(image) << "\n";
   std::cout << "Expected: " << expected << " Predicted: " << predicted << "\n";
-  mlp.Save();
   return 0;
 }

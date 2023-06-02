@@ -16,10 +16,9 @@ void MLP::Train() {
 }
 
 void MLP::TrainEpochs() {
+  auto start_time = std::chrono::steady_clock::now();
   for (std::size_t epoch{0u}; epoch < config_.GetEpochs(); ++epoch) {
     std::shuffle(train_.begin(), train_.end(), std::default_random_engine());
-
-    auto start_time = std::chrono::steady_clock::now();
 
     for (const Image& image : train_) {
       mlp_->SetInputLayer(image.GetPixels());
