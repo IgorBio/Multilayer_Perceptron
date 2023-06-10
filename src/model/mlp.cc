@@ -164,8 +164,9 @@ void MLP::SetType(Config::ModelType type) {
 
 void MLP::Save() {
   std::stringstream ss;
-  ss << "./weights/w_" << topology_.GetLayersCount() << "l_"
-     << config_.GetEpochs() << "e_" << metrics_.GetLoss() << "loss";
+  ss << "./weights/w_" << topology_.GetLayersCount() << "layers_"
+     << metrics_.GetLoss() << "mse_" << metrics_.GetAccuracy() << "acc_"
+     << config_.GetLearningRate() << "lr";
   auto time = std::time(nullptr);
   ss << "_" << std::put_time(std::localtime(&time), "%Y-%m-%d_%H-%M") << ".bin";
 
