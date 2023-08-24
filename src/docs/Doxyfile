@@ -1,0 +1,50 @@
+# Doxyfile for Project Documentation
+
+# Project information
+PROJECT_NAME           = "Multilayer Perceptron"
+PROJECT_NUMBER         = 1.0
+PROJECT_BRIEF          = "bfile hspeaker borsbeck team"
+
+# Configuration options
+OUTPUT_DIRECTORY       = ../build/docs
+INPUT                  = model README.md
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = YES
+
+# File and folder patterns to exclude from documentation
+EXCLUDE                = tests
+
+# Example path for C++ files
+FILE_PATTERNS          = *.h *.cc
+
+# Example path for C++ code snippets
+EXAMPLE_PATTERNS       = *.h *.cc
+
+# Example path for images to be included in documentation
+IMAGE_PATH             = docs/images
+
+# Configuration for LaTex output (optional)
+GENERATE_LATEX         = NO
+
+# Configuration for HTML output (optional)
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+
+# Other configuration options (optional)
+OPTIMIZE_OUTPUT_FOR_C  = YES
+ALWAYS_DETAILED_SEC    = YES
+QUIET                  = YES
+WARN_LOGFILE           = doxygen_warnings.log
+
+# Include additional configuration files if needed
+#INCLUDE_PAT           = 
+
+# Configuration for markdown
+MARKDOWN_SUPPORT       = YES
+README_FILE            = README.md
+USE_MDFILE_AS_MAINPAGE = README.md
+
+# End of Doxyfile
