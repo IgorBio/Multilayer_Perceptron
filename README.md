@@ -10,7 +10,7 @@ make run
 ## Features
 - GUI implementation, based on QT6
 
-  ![MLP GUI Screenshot](./docs/images/GUI.png)
+  ![MLP GUI Screenshot](./src/docs/images/GUI.png)
 
 - Load train and test datasets from a csv file.
 - Choose the network topology with 2-5 hidden layers.
@@ -24,7 +24,7 @@ make run
 - Run the training process using cross-validation for a given number of groups k.
 - Save to a file and load weights of perceptron from a file.
 
-  ![MLP Recognition Screecast](./docs/images/Recognition.gif)
+  ![MLP Recognition Screecast](./src/docs/images/Recognition.gif)
 
 ## License
 Copyright (c). All rights reserved.
