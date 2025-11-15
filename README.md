@@ -1,6 +1,6 @@
 # Multilayer Perceptron v1.0
-The "Multilayer Perceptron" is a modern app written in C++. The application represents a simple artificial neural network in the form of a perceptron, which can be trained on an open dataset and perform recognition of 26 handwritten letters of the Latin alphabet.
-
+The Multilayer Perceptron project is a C++ desktop application that implements an artificial neural network for recognizing handwritten letters of the Latin alphabet (A-Z). The system provides a Qt6-based graphical interface that allows users to train neural networks, test their performance, and classify handwritten letters from images or hand-drawn input. The application demonstrates two distinct implementation approaches—matrix-based and graph-based—for constructing and executing multilayer perceptrons, enabling users to compare performance and architectural trade-offs.
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/IgorBio/Multilayer_Perceptron)
 #### Program launch options
 
 ```
